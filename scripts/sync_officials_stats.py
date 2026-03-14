@@ -23,21 +23,21 @@ MODEL_PRICING = {
 }
 
 OFFICIALS = [
-    {'id':'taizi',   'label':'秘书',  'role':'客服主管',    'emoji':'🤵','rank':'一级'},
-    {'id':'zhongshu','label':'产品经理','role':'产品总监',  'emoji':'📋','rank':'一级'},
-    {'id':'menxia',  'label':'质量审核','role':'审核主管',    'emoji':'✅','rank':'一级'},
-    {'id':'shangshu','label':'项目经理','role':'项目总监',  'emoji':'📊','rank':'一级'},
-    {'id':'libu',    'label':'内容运营',  'role':'内容主管','emoji':'📝','rank':'二级'},
-    {'id':'hubu',    'label':'财务',  'role':'财务主管','emoji':'💰','rank':'二级'},
-    {'id':'bingbu',  'label':'研发部',  'role':'研发主管','emoji':'💻','rank':'二级'},
-    {'id':'xingbu',  'label':'合规部',  'role':'合规主管','emoji':'⚖️','rank':'二级'},
-    {'id':'gongbu',  'label':'运维部',  'role':'运维主管','emoji':'🔧','rank':'二级'},
-    {'id':'libu_hr', 'label':'人事',  'role':'HR主管','emoji':'👥','rank':'二级'},
-    {'id':'zaochao', 'label':'数据简报','role':'数据分析师',  'emoji':'📈','rank':'三级'},
-    {'id':'live_ops', 'label':'直播运营','role':'直播主管','emoji':'🎬','rank':'二级'},
-    {'id':'store_ops', 'label':'店铺运营','role':'店铺主管','emoji':'🏪','rank':'二级'},
-    {'id':'sourcing', 'label':'选品','role':'选品主管','emoji':'🎯','rank':'二级'},
-    {'id':'procurement', 'label':'采购跟单','role':'采购主管','emoji':'📦','rank':'二级'},
+    {'id':'秘书',   'label':'秘书',  'role':'客服主管',    'emoji':'🤵','rank':'一级'},
+    {'id':'产品经理','label':'产品经理','role':'产品总监',  'emoji':'📋','rank':'一级'},
+    {'id':'质量审核',  'label':'质量审核','role':'审核主管',    'emoji':'✅','rank':'一级'},
+    {'id':'项目经理','label':'项目经理','role':'项目总监',  'emoji':'📊','rank':'一级'},
+    {'id':'内容运营',    'label':'内容运营',  'role':'内容主管','emoji':'📝','rank':'二级'},
+    {'id':'财务',    'label':'财务',  'role':'财务主管','emoji':'💰','rank':'二级'},
+    {'id':'研发部',  'label':'研发部',  'role':'研发主管','emoji':'💻','rank':'二级'},
+    {'id':'合规部',  'label':'合规部',  'role':'合规主管','emoji':'⚖️','rank':'二级'},
+    {'id':'运维部',  'label':'运维部',  'role':'运维主管','emoji':'🔧','rank':'二级'},
+    {'id':'人事', 'label':'人事',  'role':'HR主管','emoji':'👥','rank':'二级'},
+    {'id':'数据简报', 'label':'数据简报','role':'数据分析师',  'emoji':'📈','rank':'三级'},
+    {'id':'直播运营', 'label':'直播运营','role':'直播主管','emoji':'🎬','rank':'二级'},
+    {'id':'店铺运营', 'label':'店铺运营','role':'店铺主管','emoji':'🏪','rank':'二级'},
+    {'id':'选品', 'label':'选品','role':'选品主管','emoji':'🎯','rank':'二级'},
+    {'id':'采购跟单', 'label':'采购跟单','role':'采购主管','emoji':'📦','rank':'二级'},
 ]
 
 def rj(p, d):
@@ -69,7 +69,7 @@ def get_model(agent_id):
         if a.get('id') == agent_id:
             return normalize_model(a.get('model', default), default)
     # 兼容历史：秘书曾使用 main 作为运行时 id
-    if agent_id == 'taizi':
+    if agent_id == '秘书':
         for a in cfg.get('agents',{}).get('list',[]):
             if a.get('id') == 'main':
                 return normalize_model(a.get('model', default), default)
@@ -78,7 +78,7 @@ def get_model(agent_id):
 def scan_agent(agent_id):
     """从 sessions.json 读取 token 统计（累计所有 session）"""
     sj = AGENTS_ROOT / agent_id / 'sessions' / 'sessions.json'
-    if not sj.exists() and agent_id == 'taizi':
+    if not sj.exists() and agent_id == '秘书':
         sj = AGENTS_ROOT / 'main' / 'sessions' / 'sessions.json'
     if not sj.exists():
         return {'tokens_in':0,'tokens_out':0,'cache_read':0,'cache_write':0,'sessions':0,'last_active':None,'messages':0}

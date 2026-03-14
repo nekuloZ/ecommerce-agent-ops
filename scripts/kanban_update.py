@@ -41,25 +41,25 @@ STATE_ORG_MAP = {
 
 _STATE_AGENT_MAP = {
     'Taizi': 'main',
-    'Zhongshu': 'zhongshu',
-    'Menxia': 'menxia',
-    'Assigned': 'shangshu',
-    'Review': 'shangshu',
-    'Pending': 'zhongshu',
+    'Zhongshu': '产品经理',
+    'Menxia': '质量审核',
+    'Assigned': '项目经理',
+    'Review': '项目经理',
+    'Pending': '产品经理',
 }
 
 _ORG_AGENT_MAP = {
-    '内容运营': 'libu', '财务': 'hubu', '研发部': 'bingbu',
-    '合规部': 'xingbu', '运维部': 'gongbu', '人事': 'libu_hr',
-    '产品经理': 'zhongshu', '质量审核': 'menxia', '项目经理': 'shangshu',
+    '内容运营': '内容运营', '财务': '财务', '研发部': '研发部',
+    '合规部': '合规部', '运维部': '运维部', '人事': '人事',
+    '产品经理': '产品经理', '质量审核': '质量审核', '项目经理': '项目经理',
 }
 
 _AGENT_LABELS = {
-    'main': '秘书', 'taizi': '秘书',
-    'zhongshu': '产品经理', 'menxia': '质量审核', 'shangshu': '项目经理',
-    'libu': '内容运营', 'hubu': '财务', 'bingbu': '研发部', 'xingbu': '合规部',
-    'gongbu': '运维部', 'libu_hr': '人事', 'zaochao': '数据简报',
-    'live_ops': '直播运营', 'store_ops': '店铺运营', 'sourcing': '选品', 'procurement': '采购跟单',
+    'main': '秘书', '秘书': '秘书',
+    '产品经理': '产品经理', '质量审核': '质量审核', '项目经理': '项目经理',
+    '内容运营': '内容运营', '财务': '财务', '研发部': '研发部', '合规部': '合规部',
+    '运维部': '运维部', '人事': '人事', '数据简报': '数据简报',
+    '直播运营': '直播运营', '店铺运营': '店铺运营', '选品': '选品', '采购跟单': '采购跟单',
 }
 
 MAX_PROGRESS_LOG = 100  # 单任务最大进展日志条数

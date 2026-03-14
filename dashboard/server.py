@@ -657,21 +657,21 @@ def handle_review_action(task_id, action, comment=''):
 # ══ Agent 在线状态检测 ══
 
 _AGENT_DEPTS = [
-    {'id':'taizi',   'label':'秘书',  'emoji':'🤵', 'role':'客服主管',     'rank':'一级'},
-    {'id':'zhongshu','label':'产品经理','emoji':'📋', 'role':'产品总监',   'rank':'一级'},
-    {'id':'menxia',  'label':'质量审核','emoji':'✅', 'role':'审核主管',     'rank':'一级'},
-    {'id':'shangshu','label':'项目经理','emoji':'📊', 'role':'项目总监',   'rank':'一级'},
-    {'id':'hubu',    'label':'财务',  'emoji':'💰', 'role':'财务主管', 'rank':'二级'},
-    {'id':'libu',    'label':'内容运营',  'emoji':'📝', 'role':'内容主管', 'rank':'二级'},
-    {'id':'bingbu',  'label':'研发部',  'emoji':'💻', 'role':'研发主管', 'rank':'二级'},
-    {'id':'xingbu',  'label':'合规部',  'emoji':'⚖️', 'role':'合规主管', 'rank':'二级'},
-    {'id':'gongbu',  'label':'运维部',  'emoji':'🔧', 'role':'运维主管', 'rank':'二级'},
-    {'id':'libu_hr', 'label':'人事',  'emoji':'👥', 'role':'HR主管', 'rank':'二级'},
-    {'id':'zaochao', 'label':'数据简报','emoji':'📈', 'role':'数据分析师',   'rank':'三级'},
-    {'id':'live_ops', 'label':'直播运营','emoji':'🎬', 'role':'直播主管', 'rank':'二级'},
-    {'id':'store_ops', 'label':'店铺运营','emoji':'🏪', 'role':'店铺主管', 'rank':'二级'},
-    {'id':'sourcing', 'label':'选品','emoji':'🎯', 'role':'选品主管', 'rank':'二级'},
-    {'id':'procurement', 'label':'采购跟单','emoji':'📦', 'role':'采购主管', 'rank':'二级'},
+    {'id':'秘书',   'label':'秘书',  'emoji':'🤵', 'role':'客服主管',     'rank':'一级'},
+    {'id':'产品经理','label':'产品经理','emoji':'📋', 'role':'产品总监',   'rank':'一级'},
+    {'id':'质量审核',  'label':'质量审核','emoji':'✅', 'role':'审核主管',     'rank':'一级'},
+    {'id':'项目经理','label':'项目经理','emoji':'📊', 'role':'项目总监',   'rank':'一级'},
+    {'id':'财务',    'label':'财务',  'emoji':'💰', 'role':'财务主管', 'rank':'二级'},
+    {'id':'内容运营',    'label':'内容运营',  'emoji':'📝', 'role':'内容主管', 'rank':'二级'},
+    {'id':'研发部',  'label':'研发部',  'emoji':'💻', 'role':'研发主管', 'rank':'二级'},
+    {'id':'合规部',  'label':'合规部',  'emoji':'⚖️', 'role':'合规主管', 'rank':'二级'},
+    {'id':'运维部',  'label':'运维部',  'emoji':'🔧', 'role':'运维主管', 'rank':'二级'},
+    {'id':'人事', 'label':'人事',  'emoji':'👥', 'role':'HR主管', 'rank':'二级'},
+    {'id':'数据简报', 'label':'数据简报','emoji':'📈', 'role':'数据分析师',   'rank':'三级'},
+    {'id':'直播运营', 'label':'直播运营','emoji':'🎬', 'role':'直播主管', 'rank':'二级'},
+    {'id':'店铺运营', 'label':'店铺运营','emoji':'🏪', 'role':'店铺主管', 'rank':'二级'},
+    {'id':'选品', 'label':'选品','emoji':'🎯', 'role':'选品主管', 'rank':'二级'},
+    {'id':'采购跟单', 'label':'采购跟单','emoji':'📦', 'role':'采购主管', 'rank':'二级'},
 ]
 
 
@@ -866,19 +866,19 @@ def wake_agent(agent_id, message=''):
 
 # 状态 → agent_id 映射
 _STATE_AGENT_MAP = {
-    'Taizi': 'taizi',
-    'Zhongshu': 'zhongshu',
-    'Menxia': 'menxia',
-    'Assigned': 'shangshu',
+    'Taizi': '秘书',
+    'Zhongshu': '产品经理',
+    'Menxia': '质量审核',
+    'Assigned': '项目经理',
     'Doing': None,         # 六部，需从 org 推断
-    'Review': 'shangshu',
+    'Review': '项目经理',
     'Next': None,          # 待执行，从 org 推断
-    'Pending': 'zhongshu', # 待处理，默认产品经理
+    'Pending': '产品经理', # 待处理，默认产品经理
 }
 _ORG_AGENT_MAP = {
-    '秘书': 'taizi', '产品经理': 'zhongshu', '质量审核': 'menxia', '项目经理': 'shangshu',
-    '内容运营': 'libu', '财务': 'hubu', '研发部': 'bingbu', '合规部': 'xingbu', '运维部': 'gongbu', '人事': 'libu_hr',
-    '数据简报': 'zaochao', '直播运营': 'live_ops', '店铺运营': 'store_ops', '选品': 'sourcing', '采购跟单': 'procurement',
+    '秘书': '秘书', '产品经理': '产品经理', '质量审核': '质量审核', '项目经理': '项目经理',
+    '内容运营': '内容运营', '财务': '财务', '研发部': '研发部', '合规部': '合规部', '运维部': '运维部', '人事': '人事',
+    '数据简报': '数据简报', '直播运营': '直播运营', '店铺运营': '店铺运营', '选品': '选品', '采购跟单': '采购跟单',
 }
 
 _TERMINAL_STATES = {'Done', 'Cancelled'}
@@ -1019,7 +1019,7 @@ def handle_scheduler_escalate(task_id, reason=''):
     sched = _ensure_scheduler(task)
     current_level = int(sched.get('escalationLevel') or 0)
     next_level = min(current_level + 1, 2)
-    target = 'menxia' if next_level == 1 else 'shangshu'
+    target = '质量审核' if next_level == 1 else '项目经理'
     target_label = '质量审核' if next_level == 1 else '项目经理'
 
     sched['escalationLevel'] = next_level
@@ -1118,7 +1118,7 @@ def handle_scheduler_scan(threshold_sec=180):
 
         if level < 2:
             next_level = level + 1
-            target = 'menxia' if next_level == 1 else 'shangshu'
+            target = '质量审核' if next_level == 1 else '项目经理'
             target_label = '质量审核' if next_level == 1 else '项目经理'
             sched['escalationLevel'] = next_level
             sched['lastEscalatedAt'] = now_iso()
@@ -1923,28 +1923,28 @@ def dispatch_for_state(task_id, task, new_state, trigger='state-transition'):
 
     # 根据 agent_id 构造针对性消息
     _msgs = {
-        'taizi': (
+        '秘书': (
             f'📜 新任务需要你处理\n'
             f'任务ID: {task_id}\n'
             f'任务: {title}\n'
             f'⚠️ 看板已有此任务，请勿重复创建。直接用 kanban_update.py 更新状态。\n'
             f'请立即转交产品经理起草执行方案。'
         ),
-        'zhongshu': (
+        '产品经理': (
             f'📜 任务已到产品经理，请起草方案\n'
             f'任务ID: {task_id}\n'
             f'任务: {title}\n'
             f'⚠️ 看板已有此任务记录，请勿重复创建。直接用 kanban_update.py state 更新状态。\n'
             f'请立即起草执行方案，走完完整三省流程（中书起草→门下审议→尚书派发→六部执行）。'
         ),
-        'menxia': (
+        '质量审核': (
             f'📋 产品方案提交审议\n'
             f'任务ID: {task_id}\n'
             f'任务: {title}\n'
             f'⚠️ 看板已有此任务，请勿重复创建。\n'
             f'请审议产品方案，给出通过或驳回意见。'
         ),
-        'shangshu': (
+        '项目经理': (
             f'📮 审核已通过，请派发执行\n'
             f'任务ID: {task_id}\n'
             f'任务: {title}\n'

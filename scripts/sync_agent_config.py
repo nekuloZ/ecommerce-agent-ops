@@ -15,22 +15,22 @@ DATA = BASE / 'data'
 OPENCLAW_CFG = pathlib.Path.home() / '.openclaw' / 'openclaw.json'
 
 ID_LABEL = {
-    'taizi':    {'label': '秘书',   'role': '客服主管',     'duty': '消息分拣与客户响应',  'emoji': '🤵'},
+    '秘书':    {'label': '秘书',   'role': '客服主管',     'duty': '消息分拣与客户响应',  'emoji': '🤵'},
     'main':     {'label': '秘书',   'role': '客服主管',     'duty': '消息分拣与客户响应',  'emoji': '🤵'},  # 兼容旧配置
-    'zhongshu': {'label': '产品经理', 'role': '产品总监',   'duty': '需求分析与方案设计',  'emoji': '📋'},
-    'menxia':   {'label': '质量审核', 'role': '审核主管',     'duty': '方案审核与质量把关',      'emoji': '✅'},
-    'shangshu': {'label': '项目经理', 'role': '项目总监',   'duty': '任务派发与进度管理',      'emoji': '📊'},
-    'libu':     {'label': '内容运营',   'role': '内容主管', 'duty': '内容策划与文案撰写',      'emoji': '📝'},
-    'hubu':     {'label': '财务',   'role': '财务主管', 'duty': '成本核算与财务报表',      'emoji': '💰'},
-    'bingbu':   {'label': '研发部',   'role': '研发主管', 'duty': '技术攻关与系统开发',          'emoji': '💻'},
-    'xingbu':   {'label': '合规部',   'role': '合规主管', 'duty': '合规审核与风险控制',      'emoji': '⚖️'},
-    'gongbu':   {'label': '运维部',   'role': '运维主管', 'duty': '系统运维与自动化部署',    'emoji': '🔧'},
-    'libu_hr':  {'label': '人事',   'role': 'HR主管', 'duty': '人事管理与团队建设',  'emoji': '👥'},
-    'zaochao':  {'label': '数据简报', 'role': '数据分析师',   'duty': '数据采集与报表生成',  'emoji': '📈'},
-    'live_ops': {'label': '直播运营', 'role': '直播主管', 'duty': '直播间运营与主播管理', 'emoji': '🎬'},
-    'store_ops': {'label': '店铺运营', 'role': '店铺主管', 'duty': '店铺日常运营与优化', 'emoji': '🏪'},
-    'sourcing': {'label': '选品', 'role': '选品主管', 'duty': '商品选品与市场分析', 'emoji': '🎯'},
-    'procurement': {'label': '采购跟单', 'role': '采购主管', 'duty': '采购执行与供应商管理', 'emoji': '📦'},
+    '产品经理': {'label': '产品经理', 'role': '产品总监',   'duty': '需求分析与方案设计',  'emoji': '📋'},
+    '质量审核':   {'label': '质量审核', 'role': '审核主管',     'duty': '方案审核与质量把关',      'emoji': '✅'},
+    '项目经理': {'label': '项目经理', 'role': '项目总监',   'duty': '任务派发与进度管理',      'emoji': '📊'},
+    '内容运营':     {'label': '内容运营',   'role': '内容主管', 'duty': '内容策划与文案撰写',      'emoji': '📝'},
+    '财务':     {'label': '财务',   'role': '财务主管', 'duty': '成本核算与财务报表',      'emoji': '💰'},
+    '研发部':   {'label': '研发部',   'role': '研发主管', 'duty': '技术攻关与系统开发',          'emoji': '💻'},
+    '合规部':   {'label': '合规部',   'role': '合规主管', 'duty': '合规审核与风险控制',      'emoji': '⚖️'},
+    '运维部':   {'label': '运维部',   'role': '运维主管', 'duty': '系统运维与自动化部署',    'emoji': '🔧'},
+    '人事':  {'label': '人事',   'role': 'HR主管', 'duty': '人事管理与团队建设',  'emoji': '👥'},
+    '数据简报':  {'label': '数据简报', 'role': '数据分析师',   'duty': '数据采集与报表生成',  'emoji': '📈'},
+    '直播运营': {'label': '直播运营', 'role': '直播主管', 'duty': '直播间运营与主播管理', 'emoji': '🎬'},
+    '店铺运营': {'label': '店铺运营', 'role': '店铺主管', 'duty': '店铺日常运营与优化', 'emoji': '🏪'},
+    '选品': {'label': '选品', 'role': '选品主管', 'duty': '商品选品与市场分析', 'emoji': '🎯'},
+    '采购跟单': {'label': '采购跟单', 'role': '采购主管', 'duty': '采购执行与供应商管理', 'emoji': '📦'},
 }
 
 KNOWN_MODELS = [
@@ -116,14 +116,14 @@ def main():
 
     # 补充不在 openclaw.json agents list 中的 agent（兼容旧版 main）
     EXTRA_AGENTS = {
-        'taizi':   {'model': default_model, 'workspace': str(pathlib.Path.home() / '.openclaw/workspace-taizi'),
-                    'allowAgents': ['zhongshu']},
+        '秘书':   {'model': default_model, 'workspace': str(pathlib.Path.home() / '.openclaw/workspace-taizi'),
+                    'allowAgents': ['产品经理']},
         'main':    {'model': default_model, 'workspace': str(pathlib.Path.home() / '.openclaw/workspace-main'),
-                    'allowAgents': ['zhongshu','menxia','shangshu','hubu','libu','bingbu','xingbu','gongbu','libu_hr']},
-        'zaochao': {'model': default_model, 'workspace': str(pathlib.Path.home() / '.openclaw/workspace-zaochao'),
+                    'allowAgents': ['产品经理','质量审核','项目经理','财务','内容运营','研发部','合规部','运维部','人事']},
+        '数据简报': {'model': default_model, 'workspace': str(pathlib.Path.home() / '.openclaw/workspace-zaochao'),
                     'allowAgents': []},
-        'libu_hr': {'model': default_model, 'workspace': str(pathlib.Path.home() / '.openclaw/workspace-libu_hr'),
-                    'allowAgents': ['shangshu']},
+        '人事': {'model': default_model, 'workspace': str(pathlib.Path.home() / '.openclaw/workspace-libu_hr'),
+                    'allowAgents': ['项目经理']},
     }
     for ag_id, extra in EXTRA_AGENTS.items():
         if ag_id in seen_ids or ag_id not in ID_LABEL:
@@ -158,17 +158,17 @@ def main():
 
 # 项目 agents/ 目录名 → 运行时 agent_id 映射
 _SOUL_DEPLOY_MAP = {
-    'taizi': 'taizi',
-    'zhongshu': 'zhongshu',
-    'menxia': 'menxia',
-    'shangshu': 'shangshu',
-    'libu': 'libu',
-    'hubu': 'hubu',
-    'bingbu': 'bingbu',
-    'xingbu': 'xingbu',
-    'gongbu': 'gongbu',
-    'libu_hr': 'libu_hr',
-    'zaochao': 'zaochao',
+    '秘书': '秘书',
+    '产品经理': '产品经理',
+    '质量审核': '质量审核',
+    '项目经理': '项目经理',
+    '内容运营': '内容运营',
+    '财务': '财务',
+    '研发部': '研发部',
+    '合规部': '合规部',
+    '运维部': '运维部',
+    '人事': '人事',
+    '数据简报': '数据简报',
 }
 
 def sync_scripts_to_workspaces():
@@ -234,7 +234,7 @@ def deploy_soul_files():
             ws_dst.write_text(src_text, encoding='utf-8')
             deployed += 1
         # 秘书兼容：同步一份到 legacy main agent 目录
-        if runtime_id == 'taizi':
+        if runtime_id == '秘书':
             ag_dst = pathlib.Path.home() / '.openclaw/agents/main/SOUL.md'
             ag_dst.parent.mkdir(parents=True, exist_ok=True)
             try:

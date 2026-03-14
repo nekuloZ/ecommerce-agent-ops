@@ -740,20 +740,20 @@
       <span style="font-size:11px;color:var(--muted)">筛选：</span>
       <span class="sess-filter active" data-sf="all" onclick="filterSessions('all',this)">全部</span>
       <span class="sess-filter" data-sf="active" onclick="filterSessions('active',this)">进行中</span>
-      <span class="sess-filter" data-sf="zhongshu" onclick="filterSessions('zhongshu',this)">产品经理</span>
-      <span class="sess-filter" data-sf="shangshu" onclick="filterSessions('shangshu',this)">项目经理</span>
-      <span class="sess-filter" data-sf="libu" onclick="filterSessions('libu',this)">内容运营</span>
-      <span class="sess-filter" data-sf="hubu" onclick="filterSessions('hubu',this)">财务</span>
-      <span class="sess-filter" data-sf="bingbu" onclick="filterSessions('bingbu',this)">研发部</span>
-      <span class="sess-filter" data-sf="xingbu" onclick="filterSessions('xingbu',this)">合规部</span>
-      <span class="sess-filter" data-sf="gongbu" onclick="filterSessions('gongbu',this)">运维部</span>
-      <span class="sess-filter" data-sf="libu_hr" onclick="filterSessions('libu_hr',this)">人事</span>
-      <span class="sess-filter" data-sf="menxia" onclick="filterSessions('menxia',this)">质量审核</span>
-      <span class="sess-filter" data-sf="zaochao" onclick="filterSessions('zaochao',this)">数据简报</span>
-      <span class="sess-filter" data-sf="live_ops" onclick="filterSessions('live_ops',this)">直播运营</span>
-      <span class="sess-filter" data-sf="store_ops" onclick="filterSessions('store_ops',this)">店铺运营</span>
-      <span class="sess-filter" data-sf="sourcing" onclick="filterSessions('sourcing',this)">选品</span>
-      <span class="sess-filter" data-sf="procurement" onclick="filterSessions('procurement',this)">采购跟单</span>
+      <span class="sess-filter" data-sf="产品经理" onclick="filterSessions('产品经理',this)">产品经理</span>
+      <span class="sess-filter" data-sf="项目经理" onclick="filterSessions('项目经理',this)">项目经理</span>
+      <span class="sess-filter" data-sf="内容运营" onclick="filterSessions('内容运营',this)">内容运营</span>
+      <span class="sess-filter" data-sf="财务" onclick="filterSessions('财务',this)">财务</span>
+      <span class="sess-filter" data-sf="研发部" onclick="filterSessions('研发部',this)">研发部</span>
+      <span class="sess-filter" data-sf="合规部" onclick="filterSessions('合规部',this)">合规部</span>
+      <span class="sess-filter" data-sf="运维部" onclick="filterSessions('运维部',this)">运维部</span>
+      <span class="sess-filter" data-sf="人事" onclick="filterSessions('人事',this)">人事</span>
+      <span class="sess-filter" data-sf="质量审核" onclick="filterSessions('质量审核',this)">质量审核</span>
+      <span class="sess-filter" data-sf="数据简报" onclick="filterSessions('数据简报',this)">数据简报</span>
+      <span class="sess-filter" data-sf="直播运营" onclick="filterSessions('直播运营',this)">直播运营</span>
+      <span class="sess-filter" data-sf="店铺运营" onclick="filterSessions('店铺运营',this)">店铺运营</span>
+      <span class="sess-filter" data-sf="选品" onclick="filterSessions('选品',this)">选品</span>
+      <span class="sess-filter" data-sf="采购跟单" onclick="filterSessions('采购跟单',this)">采购跟单</span>
     </div>
     <div id="sess-grid" class="sess-grid"></div>
   </div>
@@ -1148,21 +1148,21 @@ async function wakeAllAgents(){
 /* ══ DEPT MONITOR ══ */
 function renderMonitor(tasks){
   const DEPTS = [
-    {id:'taizi',   label:'秘书',  emoji:'🤴',role:'秘书',    rank:'接待'},
-    {id:'zhongshu',label:'产品经理',emoji:'📜',role:'产品经理',  rank:'高级'},
-    {id:'menxia',  label:'质量审核',emoji:'🔍',role:'质量审核',    rank:'高级'},
-    {id:'shangshu',label:'项目经理',emoji:'📮',role:'项目经理',  rank:'高级'},
-    {id:'libu',    label:'内容运营',  emoji:'📝',role:'内容运营',rank:'中级'},
-    {id:'hubu',    label:'财务',  emoji:'💰',role:'财务',rank:'中级'},
-    {id:'bingbu',  label:'研发部',  emoji:'⚔️',role:'研发部',rank:'中级'},
-    {id:'xingbu',  label:'合规部',  emoji:'⚖️',role:'合规部',rank:'中级'},
-    {id:'gongbu',  label:'运维部',  emoji:'🔧',role:'运维部',rank:'中级'},
-    {id:'libu_hr', label:'人事',  emoji:'👔',role:'人事',rank:'中级'},
-    {id:'zaochao', label:'数据简报',emoji:'📊',role:'数据分析师',  rank:'中级'},
-    {id:'live_ops', label:'直播运营',emoji:'🎬',role:'直播运营',rank:'中级'},
-    {id:'store_ops', label:'店铺运营',emoji:'🏪',role:'店铺运营',rank:'中级'},
-    {id:'sourcing', label:'选品',emoji:'🎯',role:'选品',rank:'中级'},
-    {id:'procurement', label:'采购跟单',emoji:'📦',role:'采购跟单',rank:'中级'},
+    {id:'秘书',   label:'秘书',  emoji:'🤴',role:'秘书',    rank:'接待'},
+    {id:'产品经理',label:'产品经理',emoji:'📜',role:'产品经理',  rank:'高级'},
+    {id:'质量审核',  label:'质量审核',emoji:'🔍',role:'质量审核',    rank:'高级'},
+    {id:'项目经理',label:'项目经理',emoji:'📮',role:'项目经理',  rank:'高级'},
+    {id:'内容运营',    label:'内容运营',  emoji:'📝',role:'内容运营',rank:'中级'},
+    {id:'财务',    label:'财务',  emoji:'💰',role:'财务',rank:'中级'},
+    {id:'研发部',  label:'研发部',  emoji:'⚔️',role:'研发部',rank:'中级'},
+    {id:'合规部',  label:'合规部',  emoji:'⚖️',role:'合规部',rank:'中级'},
+    {id:'运维部',  label:'运维部',  emoji:'🔧',role:'运维部',rank:'中级'},
+    {id:'人事', label:'人事',  emoji:'👔',role:'人事',rank:'中级'},
+    {id:'数据简报', label:'数据简报',emoji:'📊',role:'数据分析师',  rank:'中级'},
+    {id:'直播运营', label:'直播运营',emoji:'🎬',role:'直播运营',rank:'中级'},
+    {id:'店铺运营', label:'店铺运营',emoji:'🏪',role:'店铺运营',rank:'中级'},
+    {id:'选品', label:'选品',emoji:'🎯',role:'选品',rank:'中级'},
+    {id:'采购跟单', label:'采购跟单',emoji:'📦',role:'采购跟单',rank:'中级'},
   ];
 
   // 每个部门当前承接的任务：从 JJC 任务里找 org 匹配且非 Done 的
@@ -2137,7 +2137,7 @@ function extractAgent(t){
   const sm = t.sourceMeta||{};
   if(sm.agentId){
     // "mc-gateway-xxx" → try to match known agents
-    const known = ['taizi','zhongshu','menxia','shangshu','hubu','libu','bingbu','xingbu','gongbu','zaochao'];
+    const known = ['秘书','产品经理','质量审核','项目经理','财务','内容运营','研发部','合规部','运维部','数据简报'];
     for(const k of known){ if(sm.agentId.includes(k)) return k; }
   }
   return (t.org||'').replace(/省|部/g,'').toLowerCase();
