@@ -92,7 +92,7 @@ backup_existing() {
 create_workspaces() {
   info "创建 Agent Workspace..."
   
-  AGENTS=(taizi zhongshu menxia shangshu hubu libu bingbu xingbu gongbu libu_hr zaochao)
+  AGENTS=(taizi zhongshu menxia shangshu hubu libu bingbu xingbu gongbu libu_hr zaochao live_ops store_ops sourcing procurement)
   for agent in "${AGENTS[@]}"; do
     ws="$OC_HOME/workspace-$agent"
     mkdir -p "$ws/skills"
@@ -138,7 +138,7 @@ AGENTS = [
   {"id": "taizi",    "subagents": {"allowAgents": ["zhongshu"]}},
     {"id": "zhongshu", "subagents": {"allowAgents": ["menxia", "shangshu"]}},
     {"id": "menxia",   "subagents": {"allowAgents": ["shangshu", "zhongshu"]}},
-  {"id": "shangshu", "subagents": {"allowAgents": ["zhongshu", "menxia", "hubu", "libu", "bingbu", "xingbu", "gongbu", "libu_hr"]}},
+  {"id": "shangshu", "subagents": {"allowAgents": ["zhongshu", "menxia", "hubu", "libu", "bingbu", "xingbu", "gongbu", "libu_hr", "live_ops", "store_ops", "sourcing", "procurement"]}},
     {"id": "hubu",     "subagents": {"allowAgents": ["shangshu"]}},
     {"id": "libu",     "subagents": {"allowAgents": ["shangshu"]}},
     {"id": "bingbu",   "subagents": {"allowAgents": ["shangshu"]}},
@@ -146,6 +146,10 @@ AGENTS = [
     {"id": "gongbu",   "subagents": {"allowAgents": ["shangshu"]}},
   {"id": "libu_hr",  "subagents": {"allowAgents": ["shangshu"]}},
   {"id": "zaochao",  "subagents": {"allowAgents": []}},
+  {"id": "live_ops", "subagents": {"allowAgents": ["shangshu"]}},
+  {"id": "store_ops", "subagents": {"allowAgents": ["shangshu"]}},
+  {"id": "sourcing", "subagents": {"allowAgents": ["shangshu"]}},
+  {"id": "procurement", "subagents": {"allowAgents": ["shangshu"]}},
 ]
 
 agents_cfg = cfg.setdefault('agents', {})

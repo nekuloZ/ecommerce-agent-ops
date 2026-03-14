@@ -23,17 +23,21 @@ MODEL_PRICING = {
 }
 
 OFFICIALS = [
-    {'id':'taizi',   'label':'太子',  'role':'太子',    'emoji':'🤴','rank':'储君'},
-    {'id':'zhongshu','label':'中书省','role':'中书令',  'emoji':'📜','rank':'正一品'},
-    {'id':'menxia',  'label':'门下省','role':'侍中',    'emoji':'🔍','rank':'正一品'},
-    {'id':'shangshu','label':'尚书省','role':'尚书令',  'emoji':'📮','rank':'正一品'},
-    {'id':'libu',    'label':'礼部',  'role':'礼部尚书','emoji':'📝','rank':'正二品'},
-    {'id':'hubu',    'label':'户部',  'role':'户部尚书','emoji':'💰','rank':'正二品'},
-    {'id':'bingbu',  'label':'兵部',  'role':'兵部尚书','emoji':'⚔️','rank':'正二品'},
-    {'id':'xingbu',  'label':'刑部',  'role':'刑部尚书','emoji':'⚖️','rank':'正二品'},
-    {'id':'gongbu',  'label':'工部',  'role':'工部尚书','emoji':'🔧','rank':'正二品'},
-    {'id':'libu_hr', 'label':'吏部',  'role':'吏部尚书','emoji':'👔','rank':'正二品'},
-    {'id':'zaochao', 'label':'钦天监','role':'朝报官',  'emoji':'📰','rank':'正三品'},
+    {'id':'taizi',   'label':'秘书',  'role':'客服主管',    'emoji':'🤵','rank':'一级'},
+    {'id':'zhongshu','label':'产品经理','role':'产品总监',  'emoji':'📋','rank':'一级'},
+    {'id':'menxia',  'label':'质量审核','role':'审核主管',    'emoji':'✅','rank':'一级'},
+    {'id':'shangshu','label':'项目经理','role':'项目总监',  'emoji':'📊','rank':'一级'},
+    {'id':'libu',    'label':'内容运营',  'role':'内容主管','emoji':'📝','rank':'二级'},
+    {'id':'hubu',    'label':'财务',  'role':'财务主管','emoji':'💰','rank':'二级'},
+    {'id':'bingbu',  'label':'研发部',  'role':'研发主管','emoji':'💻','rank':'二级'},
+    {'id':'xingbu',  'label':'合规部',  'role':'合规主管','emoji':'⚖️','rank':'二级'},
+    {'id':'gongbu',  'label':'运维部',  'role':'运维主管','emoji':'🔧','rank':'二级'},
+    {'id':'libu_hr', 'label':'人事',  'role':'HR主管','emoji':'👥','rank':'二级'},
+    {'id':'zaochao', 'label':'数据简报','role':'数据分析师',  'emoji':'📈','rank':'三级'},
+    {'id':'live_ops', 'label':'直播运营','role':'直播主管','emoji':'🎬','rank':'二级'},
+    {'id':'store_ops', 'label':'店铺运营','role':'店铺主管','emoji':'🏪','rank':'二级'},
+    {'id':'sourcing', 'label':'选品','role':'选品主管','emoji':'🎯','rank':'二级'},
+    {'id':'procurement', 'label':'采购跟单','role':'采购主管','emoji':'📦','rank':'二级'},
 ]
 
 def rj(p, d):
@@ -64,7 +68,7 @@ def get_model(agent_id):
     for a in cfg.get('agents',{}).get('list',[]):
         if a.get('id') == agent_id:
             return normalize_model(a.get('model', default), default)
-    # 兼容历史：太子曾使用 main 作为运行时 id
+    # 兼容历史：秘书曾使用 main 作为运行时 id
     if agent_id == 'taizi':
         for a in cfg.get('agents',{}).get('list',[]):
             if a.get('id') == 'main':
@@ -135,7 +139,7 @@ def get_task_stats(org_label, tasks):
     active = [t for t in tasks if t.get('state') in ('Doing','Review','Assigned') and t.get('org')==org_label]
     fl = sum(1 for t in tasks for f in t.get('flow_log',[])
              if f.get('from')==org_label or f.get('to')==org_label)
-    # 参与的旨意（JJC）列表
+    # 参与的任务（JJC）列表
     participated = []
     for t in tasks:
         if not t['id'].startswith('JJC'): continue

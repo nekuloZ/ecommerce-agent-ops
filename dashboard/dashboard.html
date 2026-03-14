@@ -674,15 +674,15 @@
 
   <!-- TABS -->
   <div class="tabs">
-    <div class="tab active" data-tab="edicts">📜 任务看板 <span class="tbadge" id="tb-e">0</span></div>
-    <div class="tab" data-tab="monitor">🔭 省部调度 <span class="tbadge" id="tb-m">0</span></div>
-    <div class="tab" data-tab="officials">👥 官员总览</div>
+    <div class="tab active" data-tab="edicts">📋 任务看板 <span class="tbadge" id="tb-e">0</span></div>
+    <div class="tab" data-tab="monitor">🔭 部门调度 <span class="tbadge" id="tb-m">0</span></div>
+    <div class="tab" data-tab="officials">👥 团队总览</div>
     <div class="tab" data-tab="models">⚙️ 模型配置</div>
     <div class="tab" data-tab="skills">🛠️ 技能配置</div>
-    <div class="tab" data-tab="sessions">💬 小任务 <span class="tbadge" id="tb-s">0</span></div>
-    <div class="tab" data-tab="memorials">📜 报告阁 <span class="tbadge" id="tb-mem">0</span></div>
-    <div class="tab" data-tab="templates">📜 旨库</div>
-    <div class="tab" data-tab="morning">📰 天下要闻</div>
+    <div class="tab" data-tab="sessions">💬 日常会话 <span class="tbadge" id="tb-s">0</span></div>
+    <div class="tab" data-tab="memorials">📁 任务档案 <span class="tbadge" id="tb-mem">0</span></div>
+    <div class="tab" data-tab="templates">📝 任务模板</div>
+    <div class="tab" data-tab="morning">📰 新闻简报</div>
   </div>
 
   <!-- ══ 任务看板 ══ -->
@@ -693,7 +693,7 @@
       <button class="ab-btn" data-filter="archived" onclick="setEdictFilter('archived')">📦 已归档</button>
       <button class="ab-btn" data-filter="all" onclick="setEdictFilter('all')">全部</button>
       <span class="ab-count" id="archive-count"></span>
-      <button class="ab-scan" id="btn-global-scan" onclick="runGlobalSchedulerScan()">🧭 前台巡检</button>
+      <button class="ab-scan" id="btn-global-scan" onclick="runGlobalSchedulerScan()">🧭 秘书巡检</button>
       <span class="ab-scan-status" id="global-scan-status">未巡检</span>
       <button class="ab-scan-detail" id="btn-global-scan-detail" onclick="toggleGlobalScanDetails()" style="display:none">查看巡检详情</button>
       <button class="ab-scan-copy" id="btn-global-scan-copy" onclick="copyGlobalScanReport()" style="display:none">📋 复制巡检报告</button>
@@ -710,13 +710,13 @@
     <div class="duty-grid" id="duty-grid"></div>
   </div>
 
-  <!-- ══ 官员总览 ══ -->
+  <!-- ══ 团队总览 ══ -->
   <div class="panel" id="panel-officials">
     <div id="off-activity" class="off-activity" style="display:none"></div>
     <div id="off-kpi" class="off-kpi"></div>
     <div class="off-layout">
       <div id="off-ranklist" class="off-ranklist"></div>
-      <div id="off-detail" class="off-detail"><div class="od-empty">← 点击左侧官员查看详情</div></div>
+      <div id="off-detail" class="off-detail"><div class="od-empty">← 点击左侧成员查看详情</div></div>
     </div>
   </div>
 
@@ -747,7 +747,7 @@
       <span class="sess-filter" data-sf="bingbu" onclick="filterSessions('bingbu',this)">研发部</span>
       <span class="sess-filter" data-sf="xingbu" onclick="filterSessions('xingbu',this)">合规部</span>
       <span class="sess-filter" data-sf="gongbu" onclick="filterSessions('gongbu',this)">运维部</span>
-      <span class="sess-filter" data-sf="libu_hr" onclick="filterSessions('libu_hr',this)">人力资源</span>
+      <span class="sess-filter" data-sf="libu_hr" onclick="filterSessions('libu_hr',this)">人事</span>
       <span class="sess-filter" data-sf="menxia" onclick="filterSessions('menxia',this)">质量审核</span>
       <span class="sess-filter" data-sf="zaochao" onclick="filterSessions('zaochao',this)">数据简报</span>
       <span class="sess-filter" data-sf="live_ops" onclick="filterSessions('live_ops',this)">直播运营</span>
@@ -915,7 +915,7 @@ function restoreGlobalScanState(){
 /* ══ PIPELINE DEFINITION ══ */
 const PIPE = [
   {key:'Inbox',    dept:'用户',   icon:'👑', action:'下发'},
-  {key:'Taizi',    dept:'前台',   icon:'🤴', action:'分拣'},
+  {key:'Taizi',    dept:'秘书',   icon:'🤴', action:'分拣'},
   {key:'Zhongshu', dept:'产品经理', icon:'📜', action:'起草'},
   {key:'Menxia',   dept:'质量审核', icon:'🔍', action:'审议'},
   {key:'Assigned', dept:'项目经理', icon:'📮', action:'派发'},
@@ -926,7 +926,7 @@ const PIPE = [
 const PIPE_STATE_IDX = {Inbox:0,Pending:0,Taizi:1,Zhongshu:2,Menxia:3,Assigned:4,Doing:5,Review:6,Done:7,Blocked:5,Cancelled:5,Next:4};
 
 /* ══ DEPT COLORS ══ */
-const DEPT_COLOR = {'前台':'#e8a040','产品经理':'#a07aff','质量审核':'#6a9eff','项目经理':'#6aef9a','内容运营':'#f5c842','财务':'#ff9a6a','研发部':'#ff5270','合规部':'#cc4444','运维部':'#44aaff','人力资源':'#9b59b6','用户':'#ffd700','汇报':'#2ecc8a','直播运营':'#ff66aa','店铺运营':'#66ccff','选品':'#ffaa44','采购跟单':'#88dd66'};
+const DEPT_COLOR = {'秘书':'#e8a040','产品经理':'#a07aff','质量审核':'#6a9eff','项目经理':'#6aef9a','内容运营':'#f5c842','财务':'#ff9a6a','研发部':'#ff5270','合规部':'#cc4444','运维部':'#44aaff','人事':'#9b59b6','用户':'#ffd700','汇报':'#2ecc8a','直播运营':'#ff66aa','店铺运营':'#66ccff','选品':'#ffaa44','采购跟单':'#88dd66'};
 function deptColor(d){return DEPT_COLOR[d]||'#6a9eff'}
 
 /* ══ UTILS ══ */
@@ -934,7 +934,7 @@ const esc=s=>s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g
 async function fetchJ(u){const r=await fetch(u,{cache:'no-store'});if(!r.ok)throw Error(r.status);return r.json()}
 async function postJ(u,d){const r=await fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});return r.json()}
 function toast(msg,type='ok',ms=3000){const el=document.createElement('div');el.className=`toast ${type}`;el.textContent=msg;document.getElementById('toaster').appendChild(el);setTimeout(()=>el.remove(),ms)}
-const STATE_LABEL={Inbox:'收件',Pending:'待处理',Taizi:'前台分拣',Zhongshu:'中书起草',Menxia:'门下审议',Assigned:'已派发',Doing:'执行中',Review:'待审查',Done:'已完成',Blocked:'阻塞',Cancelled:'已取消',Next:'待执行'};
+const STATE_LABEL={Inbox:'收件',Pending:'待处理',Taizi:'秘书分拣',Zhongshu:'中书起草',Menxia:'门下审议',Assigned:'已派发',Doing:'执行中',Review:'待审查',Done:'已完成',Blocked:'阻塞',Cancelled:'已取消',Next:'待执行'};
 // 根据轮次动态生成状态标签
 function stateLabel(t){
   const r = t.review_round||0;
@@ -1004,7 +1004,7 @@ function renderEdicts(tasks){
   document.getElementById('btn-archive-done').style.display = unArchivedDone.length ? '' : 'none';
   const el = document.getElementById('edict-grid');
   if(!edicts.length){
-    el.innerHTML='<div class="empty" style="grid-column:1/-1">暂无任务<br><small style="font-size:11px;margin-top:6px;display:block;color:var(--muted)">通过飞书向前台发送任务，前台分拣后转产品经理处理</small></div>';
+    el.innerHTML='<div class="empty" style="grid-column:1/-1">暂无任务<br><small style="font-size:11px;margin-top:6px;display:block;color:var(--muted)">通过飞书向秘书发送任务，秘书分拣后转产品经理处理</small></div>';
     return;
   }
   el.innerHTML = edicts.map(t => {
@@ -1148,7 +1148,7 @@ async function wakeAllAgents(){
 /* ══ DEPT MONITOR ══ */
 function renderMonitor(tasks){
   const DEPTS = [
-    {id:'taizi',   label:'前台',  emoji:'🤴',role:'前台',    rank:'接待'},
+    {id:'taizi',   label:'秘书',  emoji:'🤴',role:'秘书',    rank:'接待'},
     {id:'zhongshu',label:'产品经理',emoji:'📜',role:'产品经理',  rank:'高级'},
     {id:'menxia',  label:'质量审核',emoji:'🔍',role:'质量审核',    rank:'高级'},
     {id:'shangshu',label:'项目经理',emoji:'📮',role:'项目经理',  rank:'高级'},
@@ -1157,7 +1157,7 @@ function renderMonitor(tasks){
     {id:'bingbu',  label:'研发部',  emoji:'⚔️',role:'研发部',rank:'中级'},
     {id:'xingbu',  label:'合规部',  emoji:'⚖️',role:'合规部',rank:'中级'},
     {id:'gongbu',  label:'运维部',  emoji:'🔧',role:'运维部',rank:'中级'},
-    {id:'libu_hr', label:'人力资源',  emoji:'👔',role:'人力资源',rank:'中级'},
+    {id:'libu_hr', label:'人事',  emoji:'👔',role:'人事',rank:'中级'},
     {id:'zaochao', label:'数据简报',emoji:'📊',role:'数据分析师',  rank:'中级'},
     {id:'live_ops', label:'直播运营',emoji:'🎬',role:'直播运营',rank:'中级'},
     {id:'store_ops', label:'店铺运营',emoji:'🏪',role:'店铺运营',rank:'中级'},
@@ -1167,7 +1167,7 @@ function renderMonitor(tasks){
 
   // 每个部门当前承接的任务：从 JJC 任务里找 org 匹配且非 Done 的
   const activeTasks = tasks.filter(t => isEdict(t) && t.state !== 'Done' && t.state !== 'Next');
-  // 官员统计数据（如已加载）
+  // 团队统计数据（如已加载）
   const offMap = {};
   if(officialsData && officialsData.officials){
     officialsData.officials.forEach(o=>offMap[o.id]=o);
@@ -1285,10 +1285,10 @@ function openTask(id){
       ${['Pending','Taizi','Zhongshu','Menxia','Assigned','Doing','Review','Next'].includes(t.state) ? `<button class="btn-action" style="background:#7c5cfc18;color:#7c5cfc;border:1px solid #7c5cfc44" onclick="advanceState('${esc(t.id)}','${esc(t.state)}')">⏩ 推进到下一步</button>` : ''}
     </div>
 
-    <!-- 前台调度 -->
+    <!-- 秘书调度 -->
     <div class="sched-section">
       <div class="sched-head">
-        <span class="sched-title">🧭 前台调度</span>
+        <span class="sched-title">🧭 秘书调度</span>
         <span class="sched-status" id="sched-status">加载中...</span>
       </div>
       <div class="sched-grid" id="sched-grid">
@@ -1559,7 +1559,7 @@ function renderLiveActivity(data){
   const phaseBar = document.getElementById('la-phase-bar');
   if(phaseBar && data.phaseDurations && data.phaseDurations.length){
     const maxDur = Math.max(...data.phaseDurations.map(p=>p.durationSec||1), 1);
-    const phaseColors = {'用户':'#eab308','前台':'#f97316','产品经理':'#3b82f6','质量审核':'#8b5cf6','项目经理':'#10b981','六部':'#06b6d4','内容运营':'#ec4899','财务':'#f59e0b','研发部':'#ef4444','合规部':'#6366f1','运维部':'#14b8a6','人力资源':'#d946ef'};
+    const phaseColors = {'用户':'#eab308','秘书':'#f97316','产品经理':'#3b82f6','质量审核':'#8b5cf6','项目经理':'#10b981','六部':'#06b6d4','内容运营':'#ec4899','财务':'#f59e0b','研发部':'#ef4444','合规部':'#6366f1','运维部':'#14b8a6','人事':'#d946ef'};
     let totalDurText = data.totalDuration ? `<span style="margin-left:auto;font-size:10px;color:var(--muted)">总耗时 ${data.totalDuration}</span>` : '';
     phaseBar.innerHTML = `<div style="padding:4px 0 8px;border-bottom:1px solid var(--border)">
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><span style="font-size:11px;font-weight:600;color:var(--fg)">⏱ 阶段耗时</span>${totalDurText}</div>
@@ -1624,7 +1624,7 @@ function renderLiveActivity(data){
   if(dot){dot.classList.toggle('idle',!isActive);}
 
   // Agent label map
-  const _agentLabels={main:'前台',zhongshu:'产品经理',menxia:'质量审核',shangshu:'项目经理',libu:'内容运营',hubu:'财务',bingbu:'研发部',xingbu:'合规部',gongbu:'运维部',libu_hr:'人力资源',zaochao:'数据简报'};
+  const _agentLabels={main:'秘书',zhongshu:'产品经理',menxia:'质量审核',shangshu:'项目经理',libu:'内容运营',hubu:'财务',bingbu:'研发部',xingbu:'合规部',gongbu:'运维部',libu_hr:'人事',zaochao:'数据简报'};
 
   const renderEntry=(a)=>{
     const time=a.at?fmtActivityTime(a.at):'';
@@ -1914,7 +1914,7 @@ async function submitAddSkill(e, agentId, agentLabel){
 async function loadLive(){
   try{
     liveStatus=await fetchJ(API+'/live-status');
-    // 提前加载官员数据，供省部调度 Tab 使用
+    // 提前加载团队数据，供部门调度 Tab 使用
     if(!officialsData){
       try{ officialsData = await fetchJ(API+'/officials-stats'); }catch(e){}
     }
@@ -2439,19 +2439,19 @@ function renderOfficials(data){
     actEl.style.display='flex';
     actEl.innerHTML=`<span class="act-label">🟢 当前活跃：</span>`
       +alive.map(o=>`<span class="act-dot alive">${o.emoji} ${o.role}</span>`).join('')
-      +`<span style="color:var(--muted);font-size:11px;margin-left:auto">其余官员待命</span>`;
+      +`<span style="color:var(--muted);font-size:11px;margin-left:auto">其余成员待命</span>`;
   }
 
   // KPI 行
   document.getElementById('off-kpi').innerHTML=`
-    <div class="kpi"><div class="kpi-v blue">${offs.length}</div><div class="kpi-l">在职官员</div></div>
+    <div class="kpi"><div class="kpi-v blue">${offs.length}</div><div class="kpi-l">在职成员</div></div>
     <div class="kpi"><div class="kpi-v gold">${totals.tasks_done||0}</div><div class="kpi-l">累计完成任务</div></div>
     <div class="kpi"><div class="kpi-v ${(totals.cost_cny||0)>20?'warn':'green'}">¥${totals.cost_cny||0}</div><div class="kpi-l">累计费用（含缓存）</div></div>
-    <div class="kpi"><div class="kpi-v" style="font-size:16px;padding-top:4px">${esc(data.top_official||'—')}</div><div class="kpi-l">功绩最高</div></div>`;
+    <div class="kpi"><div class="kpi-v" style="font-size:16px;padding-top:4px">${esc(data.top_official||'—')}</div><div class="kpi-l">绩效最高</div></div>`;
 
   // 左侧排行榜
   document.getElementById('off-ranklist').innerHTML=`
-    <div class="orl-hdr">功绩排行</div>`
+    <div class="orl-hdr">绩效排行</div>`
     +offs.map(o=>{
       const hb=o.heartbeat||{status:'idle'};
       return `<div class="orl-item${selectedOfficial===o.id?' selected':''}" onclick="selectOfficial('${o.id}',this)">
@@ -2496,7 +2496,7 @@ function selectOfficial(id, el){
       <div>
         <div class="od-name">${esc(o.role)}</div>
         <div class="od-role">${esc(o.label)} · <span style="color:var(--acc)">${esc(o.model_short||o.model)}</span></div>
-        <div class="od-rank-badge">🏅 ${esc(o.rank)} · 功绩分 ${o.merit_score}</div>
+        <div class="od-rank-badge">🏅 ${esc(o.rank)} · 绩效分 ${o.merit_score}</div>
       </div>
       <div class="od-hb">
         <div class="hb ${hb.status}" style="margin-bottom:4px">${esc(hb.label)}</div>
@@ -2505,9 +2505,9 @@ function selectOfficial(id, el){
       </div>
     </div>
 
-    <!-- 核心功绩 -->
+    <!-- 核心绩效 -->
     <div class="od-section">
-      <div class="od-sec-title">功绩统计</div>
+      <div class="od-sec-title">绩效统计</div>
       <div class="od-stats">
         <div class="ods"><div class="ods-v" style="color:var(--ok)">${o.tasks_done}</div><div class="ods-l">完成任务</div></div>
         <div class="ods"><div class="ods-v" style="color:var(--warn)">${o.tasks_active}</div><div class="ods-l">执行中</div></div>
@@ -2658,7 +2658,7 @@ async function runGlobalSchedulerScan(){
       }
       persistGlobalScanState({checkedAt: r.checkedAt || '', count});
       renderGlobalScanDetails();
-      toast(`🧭 前台巡检完成：${count} 个动作`,'ok');
+      toast(`🧭 秘书巡检完成：${count} 个动作`,'ok');
       loadAll();
     }else{
       if(st) st.textContent = '巡检失败';
@@ -2713,7 +2713,7 @@ function buildGlobalScanReport(){
   const checked = globalScanCheckedAt ? globalScanCheckedAt.replace('T',' ').replace('Z','') : '未知时间';
   const count = Number(globalScanCount || globalScanActions.length || 0);
   const lines = [
-    '【前台巡检报告】',
+    '【秘书巡检报告】',
     `时间: ${checked}`,
     `动作数: ${count}`,
     '',

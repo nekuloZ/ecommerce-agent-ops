@@ -15,18 +15,22 @@ DATA = BASE / 'data'
 OPENCLAW_CFG = pathlib.Path.home() / '.openclaw' / 'openclaw.json'
 
 ID_LABEL = {
-    'taizi':    {'label': '太子',   'role': '太子',     'duty': '飞书消息分拣与回奏',  'emoji': '🤴'},
-    'main':     {'label': '太子',   'role': '太子',     'duty': '飞书消息分拣与回奏',  'emoji': '🤴'},  # 兼容旧配置
-    'zhongshu': {'label': '中书省', 'role': '中书令',   'duty': '起草任务令与优先级',  'emoji': '📜'},
-    'menxia':   {'label': '门下省', 'role': '侍中',     'duty': '审议与退回机制',      'emoji': '🔍'},
-    'shangshu': {'label': '尚书省', 'role': '尚书令',   'duty': '派单与升级裁决',      'emoji': '📮'},
-    'libu':     {'label': '礼部',   'role': '礼部尚书', 'duty': '文档/汇报/规范',      'emoji': '📝'},
-    'hubu':     {'label': '户部',   'role': '户部尚书', 'duty': '资源/预算/成本',      'emoji': '💰'},
-    'bingbu':   {'label': '兵部',   'role': '兵部尚书', 'duty': '应急与巡检',          'emoji': '⚔️'},
-    'xingbu':   {'label': '刑部',   'role': '刑部尚书', 'duty': '合规/审计/红线',      'emoji': '⚖️'},
-    'gongbu':   {'label': '工部',   'role': '工部尚书', 'duty': '工程交付与自动化',    'emoji': '🔧'},
-    'libu_hr':  {'label': '吏部',   'role': '吏部尚书', 'duty': '人事/培训/Agent管理',  'emoji': '👔'},
-    'zaochao':  {'label': '钦天监', 'role': '朝报官',   'duty': '每日新闻采集与简报',  'emoji': '📰'},
+    'taizi':    {'label': '秘书',   'role': '客服主管',     'duty': '消息分拣与客户响应',  'emoji': '🤵'},
+    'main':     {'label': '秘书',   'role': '客服主管',     'duty': '消息分拣与客户响应',  'emoji': '🤵'},  # 兼容旧配置
+    'zhongshu': {'label': '产品经理', 'role': '产品总监',   'duty': '需求分析与方案设计',  'emoji': '📋'},
+    'menxia':   {'label': '质量审核', 'role': '审核主管',     'duty': '方案审核与质量把关',      'emoji': '✅'},
+    'shangshu': {'label': '项目经理', 'role': '项目总监',   'duty': '任务派发与进度管理',      'emoji': '📊'},
+    'libu':     {'label': '内容运营',   'role': '内容主管', 'duty': '内容策划与文案撰写',      'emoji': '📝'},
+    'hubu':     {'label': '财务',   'role': '财务主管', 'duty': '成本核算与财务报表',      'emoji': '💰'},
+    'bingbu':   {'label': '研发部',   'role': '研发主管', 'duty': '技术攻关与系统开发',          'emoji': '💻'},
+    'xingbu':   {'label': '合规部',   'role': '合规主管', 'duty': '合规审核与风险控制',      'emoji': '⚖️'},
+    'gongbu':   {'label': '运维部',   'role': '运维主管', 'duty': '系统运维与自动化部署',    'emoji': '🔧'},
+    'libu_hr':  {'label': '人事',   'role': 'HR主管', 'duty': '人事管理与团队建设',  'emoji': '👥'},
+    'zaochao':  {'label': '数据简报', 'role': '数据分析师',   'duty': '数据采集与报表生成',  'emoji': '📈'},
+    'live_ops': {'label': '直播运营', 'role': '直播主管', 'duty': '直播间运营与主播管理', 'emoji': '🎬'},
+    'store_ops': {'label': '店铺运营', 'role': '店铺主管', 'duty': '店铺日常运营与优化', 'emoji': '🏪'},
+    'sourcing': {'label': '选品', 'role': '选品主管', 'duty': '商品选品与市场分析', 'emoji': '🎯'},
+    'procurement': {'label': '采购跟单', 'role': '采购主管', 'duty': '采购执行与供应商管理', 'emoji': '📦'},
 }
 
 KNOWN_MODELS = [
@@ -229,7 +233,7 @@ def deploy_soul_files():
         if src_text != dst_text:
             ws_dst.write_text(src_text, encoding='utf-8')
             deployed += 1
-        # 太子兼容：同步一份到 legacy main agent 目录
+        # 秘书兼容：同步一份到 legacy main agent 目录
         if runtime_id == 'taizi':
             ag_dst = pathlib.Path.home() / '.openclaw/agents/main/SOUL.md'
             ag_dst.parent.mkdir(parents=True, exist_ok=True)

@@ -4,13 +4,13 @@
 
 用法:
   # 新建任务（收旨时）
-  python3 kanban_update.py create JJC-20260223-012 "任务标题" Zhongshu 中书省 中书令
+  python3 kanban_update.py create JJC-20260223-012 "任务标题" Zhongshu 产品经理 产品总监
 
   # 更新状态
-  python3 kanban_update.py state JJC-20260223-012 Menxia "规划方案已提交门下省"
+  python3 kanban_update.py state JJC-20260223-012 Menxia "规划方案已提交质量审核"
 
   # 添加流转记录
-  python3 kanban_update.py flow JJC-20260223-012 "中书省" "门下省" "规划方案提交审核"
+  python3 kanban_update.py flow JJC-20260223-012 "产品经理" "质量审核" "规划方案提交审核"
 
   # 完成任务
   python3 kanban_update.py done JJC-20260223-012 "/path/to/output" "任务完成摘要"
@@ -35,8 +35,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(name)s] %(message
 from file_lock import atomic_json_read, atomic_json_update, atomic_json_write  # noqa: E402
 
 STATE_ORG_MAP = {
-    'Taizi': '太子', 'Zhongshu': '中书省', 'Menxia': '门下省', 'Assigned': '尚书省',
-    'Doing': '执行中', 'Review': '尚书省', 'Done': '完成', 'Blocked': '阻塞',
+    'Taizi': '秘书', 'Zhongshu': '产品经理', 'Menxia': '质量审核', 'Assigned': '项目经理',
+    'Doing': '执行中', 'Review': '项目经理', 'Done': '完成', 'Blocked': '阻塞',
 }
 
 _STATE_AGENT_MAP = {
@@ -49,16 +49,17 @@ _STATE_AGENT_MAP = {
 }
 
 _ORG_AGENT_MAP = {
-    '礼部': 'libu', '户部': 'hubu', '兵部': 'bingbu',
-    '刑部': 'xingbu', '工部': 'gongbu', '吏部': 'libu_hr',
-    '中书省': 'zhongshu', '门下省': 'menxia', '尚书省': 'shangshu',
+    '内容运营': 'libu', '财务': 'hubu', '研发部': 'bingbu',
+    '合规部': 'xingbu', '运维部': 'gongbu', '人事': 'libu_hr',
+    '产品经理': 'zhongshu', '质量审核': 'menxia', '项目经理': 'shangshu',
 }
 
 _AGENT_LABELS = {
-    'main': '太子', 'taizi': '太子',
-    'zhongshu': '中书省', 'menxia': '门下省', 'shangshu': '尚书省',
-    'libu': '礼部', 'hubu': '户部', 'bingbu': '兵部', 'xingbu': '刑部',
-    'gongbu': '工部', 'libu_hr': '吏部', 'zaochao': '钦天监',
+    'main': '秘书', 'taizi': '秘书',
+    'zhongshu': '产品经理', 'menxia': '质量审核', 'shangshu': '项目经理',
+    'libu': '内容运营', 'hubu': '财务', 'bingbu': '研发部', 'xingbu': '合规部',
+    'gongbu': '运维部', 'libu_hr': '人事', 'zaochao': '数据简报',
+    'live_ops': '直播运营', 'store_ops': '店铺运营', 'sourcing': '选品', 'procurement': '采购跟单',
 }
 
 MAX_PROGRESS_LOG = 100  # 单任务最大进展日志条数
@@ -82,7 +83,7 @@ def find_task(tasks, task_id):
     return next((t for t in tasks if t.get('id') == task_id), None)
 
 
-# 旨意标题最低要求
+# 任务标题最低要求
 _MIN_TITLE_LEN = 6
 _JUNK_TITLES = {
     '?', '？', '好', '好的', '是', '否', '不', '不是', '对', '了解', '收到',
@@ -101,8 +102,8 @@ def _sanitize_text(raw, max_len=80):
     t = re.sub(r'[/\\.~][A-Za-z0-9_\-./]+(?:\.(?:py|js|ts|json|md|sh|yaml|yml|txt|csv|html|css|log))?', '', t)
     # 4) 剥离 URL
     t = re.sub(r'https?://\S+', '', t)
-    # 5) 清理常见前缀: "传旨:" "下旨:" "下旨（xxx）:" 等
-    t = re.sub(r'^(传旨|下旨)([（(][^)）]*[)）])?[：:\uff1a]\s*', '', t)
+    # 5) 清理常见前缀: "创建任务:" 等前缀
+    t = re.sub(r'^创建任务([（(][^)）]*[)）])?[：:\uff1a]\s*', '', t)
     # 6) 剥离系统元数据关键词
     t = re.sub(r'(message_id|session_id|chat_id|open_id|user_id|tenant_key)\s*[:=]\s*\S+', '', t)
     # 7) 合并多余空白
@@ -152,12 +153,12 @@ def _infer_agent_id_from_runtime(task=None):
 
 
 def _is_valid_task_title(title):
-    """校验标题是否足够作为一个旨意任务。"""
+    """校验标题是否足够作为一个有效任务。"""
     t = (title or '').strip()
     if len(t) < _MIN_TITLE_LEN:
-        return False, f'标题过短（{len(t)}<{_MIN_TITLE_LEN}字），疑似非旨意'
+        return False, f'标题过短（{len(t)}<{_MIN_TITLE_LEN}字），疑似非有效任务'
     if t.lower() in _JUNK_TITLES:
-        return False, f'标题 "{t}" 不是有效旨意'
+        return False, f'标题 "{t}" 不是有效任务'
     # 纯标点或问号
     if re.fullmatch(r'[\s?？!！.。,，…·\-—~]+', t):
         return False, '标题只有标点符号'
@@ -174,14 +175,14 @@ def cmd_create(task_id, title, state, org, official, remark=None):
     """新建任务（收旨时立即调用）"""
     # 清洗标题（剥离元数据）
     title = _sanitize_title(title)
-    # 旨意标题校验
+    # 任务标题校验
     valid, reason = _is_valid_task_title(title)
     if not valid:
         log.warning(f'⚠️ 拒绝创建 {task_id}：{reason}')
         print(f'[看板] 拒绝创建：{reason}', flush=True)
         return
     actual_org = STATE_ORG_MAP.get(state, org)
-    clean_remark = _sanitize_remark(remark) if remark else f"下旨：{title}"
+    clean_remark = _sanitize_remark(remark) if remark else f"创建任务：{title}"
     def modifier(tasks):
         existing = next((t for t in tasks if t.get('id') == task_id), None)
         if existing:
@@ -194,9 +195,9 @@ def cmd_create(task_id, title, state, org, official, remark=None):
         tasks.insert(0, {
             "id": task_id, "title": title, "official": official,
             "org": actual_org, "state": state,
-            "now": clean_remark[:60] if remark else f"已下旨，等待{actual_org}接旨",
+            "now": clean_remark[:60] if remark else f"已创建，等待{actual_org}处理",
             "eta": "-", "block": "无", "output": "", "ac": "",
-            "flow_log": [{"at": now_iso(), "from": "皇上", "to": actual_org, "remark": clean_remark}],
+            "flow_log": [{"at": now_iso(), "from": "管理员", "to": actual_org, "remark": clean_remark}],
             "updatedAt": now_iso()
         })
         return tasks
@@ -256,7 +257,7 @@ def cmd_done(task_id, output_path='', summary=''):
         t['now'] = summary or '任务已完成'
         t.setdefault('flow_log', []).append({
             "at": now_iso(), "from": t.get('org', '执行部门'),
-            "to": "皇上", "remark": f"✅ 完成：{summary or '任务已完成'}"
+            "to": "管理员", "remark": f"✅ 完成：{summary or '任务已完成'}"
         })
         t['updatedAt'] = now_iso()
         return tasks

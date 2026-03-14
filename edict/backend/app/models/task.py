@@ -27,10 +27,10 @@ from ..db import Base
 
 class TaskState(str, enum.Enum):
     """任务状态枚举 — 映射三省六部流程。"""
-    Taizi = "Taizi"           # 太子分拣
-    Zhongshu = "Zhongshu"     # 中书省起草
-    Menxia = "Menxia"         # 门下省审议
-    Assigned = "Assigned"     # 尚书省已将任务派发
+    Taizi = "Taizi"           # 前台分拣
+    Zhongshu = "Zhongshu"     # 产品经理起草
+    Menxia = "Menxia"         # 质量审核审议
+    Assigned = "Assigned"     # 项目经理已将任务派发
     Next = "Next"             # 待执行
     Doing = "Doing"           # 六部执行中
     Review = "Review"         # 审查汇总
@@ -47,7 +47,7 @@ TERMINAL_STATES = {TaskState.Done, TaskState.Cancelled}
 STATE_TRANSITIONS = {
     TaskState.Taizi: {TaskState.Zhongshu, TaskState.Cancelled},
     TaskState.Zhongshu: {TaskState.Menxia, TaskState.Cancelled, TaskState.Blocked},
-    TaskState.Menxia: {TaskState.Assigned, TaskState.Zhongshu, TaskState.Cancelled},  # 封驳退回中书
+    TaskState.Menxia: {TaskState.Assigned, TaskState.Zhongshu, TaskState.Cancelled},  # 驳回退回产品经理
     TaskState.Assigned: {TaskState.Doing, TaskState.Next, TaskState.Cancelled, TaskState.Blocked},
     TaskState.Next: {TaskState.Doing, TaskState.Cancelled},
     TaskState.Doing: {TaskState.Review, TaskState.Done, TaskState.Blocked, TaskState.Cancelled},
@@ -66,12 +66,12 @@ STATE_AGENT_MAP = {
 
 # 组织 → Agent 映射（六部）
 ORG_AGENT_MAP = {
-    "户部": "hubu",
-    "礼部": "libu",
-    "兵部": "bingbu",
-    "刑部": "xingbu",
-    "工部": "gongbu",
-    "吏部": "libu_hr",
+    "财务": "hubu",
+    "内容运营": "libu",
+    "研发部": "bingbu",
+    "合规部": "xingbu",
+    "运维部": "gongbu",
+    "人力资源": "libu_hr",
 }
 
 
@@ -82,7 +82,7 @@ class Task(Base):
     id = Column(String(32), primary_key=True, comment="任务ID, e.g. JJC-20260301-001")
     title = Column(Text, nullable=False, comment="任务标题")
     state = Column(Enum(TaskState, name="task_state"), nullable=False, default=TaskState.Taizi, index=True)
-    org = Column(String(32), nullable=False, default="太子", comment="当前执行部门")
+    org = Column(String(32), nullable=False, default="前台/客服", comment="当前执行部门")
     official = Column(String(32), default="", comment="责任官员")
     now = Column(Text, default="", comment="当前进展描述")
     eta = Column(String(64), default="-", comment="预计完成时间")
