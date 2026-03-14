@@ -2,7 +2,7 @@
 
 ## 概述
 
-三省六部现已支持从网上连接和增补 skills 资源，无需手动复制文件。支持从以下来源获取：
+多Agent协作现已支持从网上连接和增补 skills 资源，无需手动复制文件。支持从以下来源获取：
 
 - **GitHub 仓库** (raw.githubusercontent.com)
 - **任何 HTTPS URL** (需返回有效的 skill 文件)
@@ -167,12 +167,12 @@ python3 scripts/skill_manager.py remove-remote \
 
 | Skill 名称 | 描述 | 适用 Agent | 源 URL |
 |-----------|------|----------|--------|
-| `code_review` | 代码审查（支持 Python/JS/Go） | 兵部/刑部 | https://raw.githubusercontent.com/openclaw-ai/skills-hub/main/code_review/SKILL.md |
-| `api_design` | API 设计审查 | 兵部/工部 | https://raw.githubusercontent.com/openclaw-ai/skills-hub/main/api_design/SKILL.md |
-| `security_audit` | 安全审计 | 刑部 | https://raw.githubusercontent.com/openclaw-ai/skills-hub/main/security_audit/SKILL.md |
-| `data_analysis` | 数据分析 | 户部 | https://raw.githubusercontent.com/openclaw-ai/skills-hub/main/data_analysis/SKILL.md |
-| `doc_generation` | 文档生成 | 礼部 | https://raw.githubusercontent.com/openclaw-ai/skills-hub/main/doc_generation/SKILL.md |
-| `test_framework` | 测试框架设计 | 工部/刑部 | https://raw.githubusercontent.com/openclaw-ai/skills-hub/main/test_framework/SKILL.md |
+| `code_review` | 代码审查（支持 Python/JS/Go） | 研发部/合规部 | https://raw.githubusercontent.com/openclaw-ai/skills-hub/main/code_review/SKILL.md |
+| `api_design` | API 设计审查 | 研发部/运维部 | https://raw.githubusercontent.com/openclaw-ai/skills-hub/main/api_design/SKILL.md |
+| `security_audit` | 安全审计 | 合规部 | https://raw.githubusercontent.com/openclaw-ai/skills-hub/main/security_audit/SKILL.md |
+| `data_analysis` | 数据分析 | 财务 | https://raw.githubusercontent.com/openclaw-ai/skills-hub/main/data_analysis/SKILL.md |
+| `doc_generation` | 文档生成 | 文档部 | https://raw.githubusercontent.com/openclaw-ai/skills-hub/main/doc_generation/SKILL.md |
+| `test_framework` | 测试框架设计 | 运维部/合规部 | https://raw.githubusercontent.com/openclaw-ai/skills-hub/main/test_framework/SKILL.md |
 
 **一键导入官方 skills**
 
@@ -292,9 +292,9 @@ compatibleAgents: [bingbu, xingbu, menxia]
 
 ## 适用场景
 
-- 兵部（代码实现）的代码产出审查
-- 刑部（合规审计）的安全检查
-- 门下省（审议把关）的质量评估
+- 研发部（代码实现）的代码产出审查
+- 合规部（合规审计）的安全检查
+- 质量审核（审议把关）的质量评估
 
 ## 依赖与限制
 

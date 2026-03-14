@@ -1,15 +1,15 @@
-# 三省六部任务分发流转体系 · 业务与技术架构
+# 多Agent协作任务分发流转体系 · 业务与技术架构
 
-> 本文档详细阐述「三省六部」项目如何从**业务制度设计**到**代码实现细节**，完整处理复杂多Agent协作的任务分发与流转。这是一个**制度化的AI多Agent框架**，而非传统的自由讨论式协作系统。
+> 本文档详细阐述「多Agent协作」项目如何从**业务制度设计**到**代码实现细节**，完整处理复杂多Agent协作的任务分发与流转。这是一个**制度化的AI多Agent框架**，而非传统的自由讨论式协作系统。
 
 **文档概览图**
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 业务层：帝国制度 (Imperial Governance Model)
-  ├─ 分权制衡：皇上 → 太子 → 中书 → 门下 → 尚书 → 六部
+  ├─ 分权制衡：用户 → 前台 → 中书 → 门下 → 尚书 → 六部
   ├─ 制度约束：不可越级、状态严格递进、门下必审议
-  └─ 质量保障：可封驳反工、实时可观测、紧急可干预
+  └─ 质量保障：可驳回反工、实时可观测、紧急可干预
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 技术层：OpenClaw多Agent编排 (Multi-Agent Orchestration)
   ├─ 状态机：9个状态（Pending → Taizi → Zhongshu → Menxia → Assigned → Doing/Next → Review → Done/Cancelled）
@@ -38,72 +38,72 @@
 - 质量控制完全依赖Agent智能
 - **问题**：容易出现Agent相互制造假数据、重复工作、方案质量无保障
 
-**三省六部**采用**"制度化协作"模式**，模仿古代帝国官僚体系：
+**多Agent协作**采用**"制度化协作"模式**，模仿古代帝国官僚体系：
 
 ```
-              皇上
+              用户
               (User)
                │
                ↓
-             太子 (Taizi)
+             前台 (Taizi)
         [分拣官、消息接入总负责]
-      ├─ 识别：这是旨意还是闲聊？
+      ├─ 识别：这是任务还是闲聊？
       ├─ 执行：直接回复闲聊 || 建立任务→转中书
-      └─ 权限：只能调用 中书省
+      └─ 权限：只能调用 产品经理
                │
                ↓
-           中书省 (Zhongshu)
+           产品经理 (Zhongshu)
       [规划官、方案起草总负责]
-      ├─ 接旨后分析需求
+      ├─ 接单后分析需求
       ├─ 拆解为子任务（todos）
-      ├─ 调用门下省审议 OR 尚书省咨询
+      ├─ 调用质量审核审议 OR 项目经理咨询
       └─ 权限：只能调用 门下 + 尚书
                │
                ↓
-           门下省 (Menxia)
+           质量审核 (Menxia)
         [审议官、质量把握人]
       ├─ 审查中书方案（可行性、完整性、风险）
-      ├─ 准奏 OR 封驳（含修改建议）
-      ├─ 若封驳 → 返回中书修改 → 重新审议（最多3轮）
+      ├─ 通过 OR 驳回（含修改建议）
+      ├─ 若驳回 → 返回中书修改 → 重新审议（最多3轮）
       └─ 权限：只能调用 尚书 + 回调中书
                │
-         (✅ 准奏)
+         (✅ 通过)
                │
                ↓
-           尚书省 (Shangshu)
+           项目经理 (Shangshu)
         [派发官、执行总指挥]
-      ├─ 接到准奏方案
+      ├─ 接到通过方案
       ├─ 分析派发给哪个部门
       ├─ 调用六部（礼/户/兵/刑/工/吏）执行
       ├─ 监控各部进度 → 汇总结果
       └─ 权限：只能调用 六部（不能越权调中书）
                │
-               ├─ 礼部 (Libu)      - 文档编制官
-               ├─ 户部 (Hubu)      - 数据分析官
-               ├─ 兵部 (Bingbu)    - 代码实现官
-               ├─ 刑部 (Xingbu)    - 测试审查官
-               ├─ 工部 (Gongbu)    - 基础设施官
-               └─ 吏部 (Libu_hr)   - 人力资源官
+               ├─ 文档部 (Libu)      - 文档编制官
+               ├─ 财务 (Hubu)      - 数据分析官
+               ├─ 研发部 (Bingbu)    - 代码实现官
+               ├─ 合规部 (Xingbu)    - 测试审查官
+               ├─ 运维部 (Gongbu)    - 基础设施官
+               └─ 人力资源 (Libu_hr)   - 人力资源官
                │
          (各部并行执行)
                ↓
-           尚书省·汇总
+           项目经理·汇总
       ├─ 收集六部结果
       ├─ 状态转为 Review
-      ├─ 回调中书省转报皇上
+      ├─ 回调产品经理转报用户
                │
                ↓
-           中书省·回奏
+           产品经理·汇报
       ├─ 汇总现象、结论、建议
       ├─ 状态转为 Done
-      └─ 回复飞书消息给皇上
+      └─ 回复飞书消息给用户
 ```
 
 #### 制度的4大保障
 
 | 保障机制 | 实现细节 | 防护效果 |
 |---------|---------|---------|
-| **制度性审核** | 门下省必审议所有中书方案，不可跳过 | 防止Agent胡乱执行，确保方案具有可行性 |
+| **制度性审核** | 质量审核必审议所有中书方案，不可跳过 | 防止Agent胡乱执行，确保方案具有可行性 |
 | **分权制衡** | 权限矩阵：谁能调谁严格定义 | 防止权力滥用（如尚书越权调中书改方案） |
 | **完全可观测** | 任务看板10个面板 + 59条活动/任务 | 实时看到任务卡在哪、谁在工作、工作状态如何 |
 | **实时可干预** | 看板内一键 stop/cancel/resume/advance | 紧急情况（如发现Agent走错方向）能立即纠正 |
@@ -116,16 +116,16 @@
 
 ```mermaid
 stateDiagram-v2
-[*] --> Pending: 皇上下旨
-Pending --> Taizi: 太子接旨
-Taizi --> Zhongshu: 太子转交中书
+[*] --> Pending: 用户下发
+Pending --> Taizi: 前台接单
+Taizi --> Zhongshu: 前台转交中书
 Zhongshu --> Menxia: 中书提交审议
-Menxia --> Zhongshu: 门下封驳(可多次)
-Menxia --> Assigned: 门下准奏
+Menxia --> Zhongshu: 门下驳回(可多次)
+Menxia --> Assigned: 门下通过
 Assigned --> Doing: 尚书派发执行
 Doing --> Review: 各部完成
-Review --> Done: 皇上御批通过
-Review --> Menxia: 皇上要求修改
+Review --> Done: 用户御批通过
+Review --> Menxia: 用户要求修改
 Done --> [*]
 Doing --> [*]: 手动取消
 Review --> [*]: 业务终止
@@ -137,93 +137,93 @@ Review --> [*]: 业务终止
 
 ```
 DAY 1:
-  10:00 - 皇上飞书："为三省六部编写完整自动化测试方案"
-          太子接旨。state = Taizi, org = 太子
-          自动派发 taizi agent → 处理此旨意
+  10:00 - 用户飞书："为多Agent协作编写完整自动化测试方案"
+          前台接单。state = Taizi, org = 前台
+          自动派发 taizi agent → 处理此任务
   
-  10:30 - 太子分拣完毕。判定为「工作旨意」（非闲聊）
+  10:30 - 前台分拣完毕。判定为「工作任务」（非闲聊）
           建任务 JJC-20260228-E2E
-          flow_log 记录："皇上 → 太子：下旨"
-          state: Taizi → Zhongshu, org: 太子 → 中书省
+          flow_log 记录："用户 → 前台：下发"
+          state: Taizi → Zhongshu, org: 前台 → 产品经理
           自动派发 zhongshu agent
 
 DAY 2:
-  09:00 - 中书省接旨。开始规划
+  09:00 - 产品经理接单。开始规划
           汇报进展："分析测试需求，拆解为单元/集成/E2E三层"
-          progress_log 记录："中书省 张三：分需求"
+          progress_log 记录："产品经理 张三：分需求"
           
-  15:00 - 中书省完成方案
+  15:00 - 产品经理完成方案
           todos 快照：需求分析✅、方案设计✅、待审议🔄
-          flow_log 记录："中书省 → 门下省：方案提交审议"
-          state: Zhongshu → Menxia, org: 中书省 → 门下省
+          flow_log 记录："产品经理 → 质量审核：方案提交审议"
+          state: Zhongshu → Menxia, org: 产品经理 → 质量审核
           自动派发 menxia agent
 
 DAY 3:
-  09:00 - 门下省开始审议
+  09:00 - 质量审核开始审议
           进度汇报："现在审查方案的完整性和风险"
           
-  14:00 - 门下省审议完毕
+  14:00 - 质量审核审议完毕
           判定："方案可行，但缺失 _infer_agent_id_from_runtime 函数的测试"
-          行为：✅ 准奏 (带修改建议)
-          flow_log 记录："门下省 → 尚书省：✅ 准奏通过（5条建议）"
-          state: Menxia → Assigned, org: 门下省 → 尚书省
-          OPTIONAL：中书省收到建议，主动优化方案
+          行为：✅ 通过 (带修改建议)
+          flow_log 记录："质量审核 → 项目经理：✅ 通过通过（5条建议）"
+          state: Menxia → Assigned, org: 质量审核 → 项目经理
+          OPTIONAL：产品经理收到建议，主动优化方案
           自动派发 shangshu agent
 
 DAY 4:
-  10:00 - 尚书省接到准奏
-          分析："该测试方案应派给工部+刑部+礼部协力完成"
-          flow_log 记录："尚书省 → 六部：派发执行（兵吏合作）"
-          state: Assigned → Doing, org: 尚书省 → 兵部+刑部+礼部
+  10:00 - 项目经理接到通过
+          分析："该测试方案应派给运维部+合规部+文档部协力完成"
+          flow_log 记录："项目经理 → 六部：派发执行（兵吏合作）"
+          state: Assigned → Doing, org: 项目经理 → 研发部+合规部+文档部
           自动派发 bingbu/xingbu/libu 三个agent（并行）
 
 DAY 4-5:
   (各部并行执行)
-  - 兵部(bingbu)：实现 pytest + unittest 测试框架
-  - 刑部(xingbu)：编写测试覆盖所有关键函数
-  - 礼部(libu)：整理测试文档和用例说明
+  - 研发部(bingbu)：实现 pytest + unittest 测试框架
+  - 合规部(xingbu)：编写测试覆盖所有关键函数
+  - 文档部(libu)：整理测试文档和用例说明
   
   实时汇报（hourly progress）：
-  - 兵部："✅ 已实现 16 个单元测试"
-  - 刑部："🔄 正在编写集成测试（8/12 完成）"
-  - 礼部："等待兵部完成再写报告"
+  - 研发部："✅ 已实现 16 个单元测试"
+  - 合规部："🔄 正在编写集成测试（8/12 完成）"
+  - 文档部："等待研发部完成再写报告"
 
 DAY 5:
   14:00 - 各部完成
-          state: Doing → Review, org: 兵部 → 尚书省
-          尚书省汇总："所有测试已完成，通过率 98.5%"
-          转回中书省
+          state: Doing → Review, org: 研发部 → 项目经理
+          项目经理汇总："所有测试已完成，通过率 98.5%"
+          转回产品经理
           
-  15:00 - 中书省回奏皇上
+  15:00 - 产品经理汇报用户
           state: Review → Done
           模板回复飞书，含最终成果链接和总结
 ```
 
-**❌ 挫折路径**（含封驳和重试，6-7天）
+**❌ 挫折路径**（含驳回和重试，6-7天）
 
 ```
 DAY 2 同上
 
-DAY 3 [封驳场景]：
-  14:00 - 门下省审议完毕
+DAY 3 [驳回场景]：
+  14:00 - 质量审核审议完毕
           判定："方案不完整，缺少性能测试 + 压力测试"
-          行为：🚫 封驳
+          行为：🚫 驳回
           review_round += 1
-          flow_log 记录："门下省 → 中书省：🚫 封驳（需补充性能测试）"
+          flow_log 记录："质量审核 → 产品经理：🚫 驳回（需补充性能测试）"
           state: Menxia → Zhongshu  # 返回中书修改
           自动派发 zhongshu agent（重新规划）
 
 DAY 3-4：
-  16:00 - 中书省收到封驳通知（唤醒agent）
+  16:00 - 产品经理收到驳回通知（唤醒agent）
           分析改进意见，补充性能测试方案
           progress："已整合性能测试需求，修正方案如下..."
-          flow_log 记录："中书省 → 门下省：修订方案（第2轮审议）"
+          flow_log 记录："产品经理 → 质量审核：修订方案（第2轮审议）"
           state: Zhongshu → Menxia
           自动派发 menxia agent
 
-  18:00 - 门下省重新审议
+  18:00 - 质量审核重新审议
           判定："✅ 本次通过"
-          flow_log 记录："门下省 → 尚书省：✅ 准奏通过（第2轮）"
+          flow_log 记录："质量审核 → 项目经理：✅ 通过通过（第2轮）"
           state: Menxia → Assigned → Doing
           后续同理想路径...
 
@@ -239,14 +239,14 @@ DAY 7：全部完成（比理想路径晚1-2天）
 ```json
 {
   "id": "JJC-20260228-E2E",          // 任务全局唯一ID (JJC-日期-序号)
-  "title": "为三省六部编写完整自动化测试方案",
+  "title": "为多Agent协作编写完整自动化测试方案",
   "official": "中书令",              // 负责官职
-  "org": "中书省",                   // 当前负责部门
+  "org": "产品经理",                   // 当前负责部门
   "state": "Assigned",               // 当前状态（见 _STATE_FLOW）
   
   // ──── 质量与约束 ────
   "priority": "normal",              // 优先级：critical/high/normal/low
-  "block": "无",                     // 当前阻滞原因（如"等待工部反馈"）
+  "block": "无",                     // 当前阻滞原因（如"等待运维部反馈"）
   "reviewRound": 2,                  // 门下审议第几轮
   "_prev_state": "Menxia",           // 若被 stop，记录之前状态用于 resume
   
@@ -259,39 +259,39 @@ DAY 7：全部完成（比理想路径晚1-2天）
   "flow_log": [
     {
       "at": "2026-02-28T10:00:00Z",
-      "from": "皇上",
-      "to": "太子",
-      "remark": "下旨：为三省六部编写完整自动化测试方案"
+      "from": "用户",
+      "to": "前台",
+      "remark": "下发：为多Agent协作编写完整自动化测试方案"
     },
     {
       "at": "2026-02-28T10:30:00Z",
-      "from": "太子",
-      "to": "中书省",
-      "remark": "分拣→传旨"
+      "from": "前台",
+      "to": "产品经理",
+      "remark": "分拣→传达"
     },
     {
       "at": "2026-02-28T15:00:00Z",
-      "from": "中书省",
-      "to": "门下省",
+      "from": "产品经理",
+      "to": "质量审核",
       "remark": "规划方案提交审议"
     },
     {
       "at": "2026-03-01T09:00:00Z",
-      "from": "门下省",
-      "to": "中书省",
-      "remark": "🚫 封驳：需补充性能测试"
+      "from": "质量审核",
+      "to": "产品经理",
+      "remark": "🚫 驳回：需补充性能测试"
     },
     {
       "at": "2026-03-01T15:00:00Z",
-      "from": "中书省",
-      "to": "门下省",
+      "from": "产品经理",
+      "to": "质量审核",
       "remark": "修订方案（第2轮审议）"
     },
     {
       "at": "2026-03-01T20:00:00Z",
-      "from": "门下省",
-      "to": "尚书省",
-      "remark": "✅ 准奏通过（第2轮，5条建议已采纳）"
+      "from": "质量审核",
+      "to": "项目经理",
+      "remark": "✅ 通过通过（第2轮，5条建议已采纳）"
     }
   ],
   
@@ -300,10 +300,10 @@ DAY 7：全部完成（比理想路径晚1-2天）
     {
       "at": "2026-02-28T10:35:00Z",
       "agent": "zhongshu",              // 汇报agent
-      "agentLabel": "中书省",
-      "text": "已接旨。分析测试需求，拟定三层测试方案...",
+      "agentLabel": "产品经理",
+      "text": "已接单。分析测试需求，拟定三层测试方案...",
       "state": "Zhongshu",              // 汇报时的状态快照
-      "org": "中书省",
+      "org": "产品经理",
       "tokens": 4500,                   // 资源消耗
       "cost": 0.0045,
       "elapsed": 120,
@@ -328,14 +328,14 @@ DAY 7：全部完成（比理想路径晚1-2天）
     "lastDispatchStatus": "success",  // queued|success|failed|timeout|error
     "snapshot": {
       "state": "Assigned",
-      "org": "尚书省",
+      "org": "项目经理",
       "note": "review-before-approve"
     }
   },
   
   // ──── 生命周期 ────
   "archived": false,                 // 是否归档
-  "now": "门下省准奏，移交尚书省派发",  // 当前实时状态描述
+  "now": "质量审核通过，移交项目经理派发",  // 当前实时状态描述
   "updatedAt": "2026-03-01T20:00:00Z"
 }
 ```
@@ -344,9 +344,9 @@ DAY 7：全部完成（比理想路径晚1-2天）
 
 | 契约 | 含义 | 违反后果 |
 |------|------|---------|
-| **不可越级** | 太子只能调中书，中书只能调门下/尚书，六部不能对外调用 | 超权调用被拒绝，系统自动拦截 |
+| **不可越级** | 前台只能调中书，中书只能调门下/尚书，六部不能对外调用 | 超权调用被拒绝，系统自动拦截 |
 | **状态单向递进** | Pending → Taizi → Zhongshu → ... → Done，不能跳过或倒退 | 只能通过 review_action(reject) 返回上一步 |
-| **门下必审** | 所有中书提出的方案都要门下省审议，无法跳过 | 中书不能直接转尚书，门下必入 |
+| **门下必审** | 所有中书提出的方案都要质量审核审议，无法跳过 | 中书不能直接转尚书，门下必入 |
 | **一旦Done无改** | 任务进入Done/Cancelled后不能再修改状态 | 若需修改需要创建新任务或取消后重新建 |
 | **task_id唯一性** | JJC-日期-序号 全局唯一，同一天同一任务不重复建 | 看板防重，自动去重 |
 | **资源消耗透明** | 每次进展汇报都要上报 tokens/cost/elapsed | 便于成本核算和性能优化 |
@@ -361,14 +361,14 @@ DAY 7：全部完成（比理想路径晚1-2天）
 
 ```python
 _STATE_FLOW = {
-    'Pending':  ('Taizi',   '皇上',    '太子',    '待处理旨意转交太子分拣'),
-    'Taizi':    ('Zhongshu','太子',    '中书省',  '太子分拣完毕，转中书省起草'),
-    'Zhongshu': ('Menxia',  '中书省',  '门下省',  '中书省方案提交门下省审议'),
-    'Menxia':   ('Assigned','门下省',  '尚书省',  '门下省准奏，转尚书省派发'),
-    'Assigned': ('Doing',   '尚书省',  '六部',    '尚书省开始派发执行'),
-    'Next':     ('Doing',   '尚书省',  '六部',    '待执行任务开始执行'),
-    'Doing':    ('Review',  '六部',    '尚书省',  '各部完成，进入汇总'),
-    'Review':   ('Done',    '尚书省',  '太子',    '全流程完成，回奏太子转报皇上'),
+    'Pending':  ('Taizi',   '用户',    '前台',    '待处理任务转交前台分拣'),
+    'Taizi':    ('Zhongshu','前台',    '产品经理',  '前台分拣完毕，转产品经理起草'),
+    'Zhongshu': ('Menxia',  '产品经理',  '质量审核',  '产品经理方案提交质量审核审议'),
+    'Menxia':   ('Assigned','质量审核',  '项目经理',  '质量审核通过，转项目经理派发'),
+    'Assigned': ('Doing',   '项目经理',  '六部',    '项目经理开始派发执行'),
+    'Next':     ('Doing',   '项目经理',  '六部',    '待执行任务开始执行'),
+    'Doing':    ('Review',  '六部',    '项目经理',  '各部完成，进入汇总'),
+    'Review':   ('Done',    '项目经理',  '前台',    '全流程完成，汇报前台转报用户'),
 }
 ```
 
@@ -398,10 +398,10 @@ _STATE_AGENT_MAP = {
    └─ 若无法推断则跳过派发（如 Done/Cancelled）
 
 2. 构造派发消息（针对性促使Agent立即工作）
-   ├─ taizi: "📜 皇上旨意需要你处理..."
-   ├─ zhongshu: "📜 旨意已到中书省，请起草方案..."
-   ├─ menxia: "📋 中书省方案提交审议..."
-   ├─ shangshu: "📮 门下省已准奏，请派发执行..."
+   ├─ taizi: "📜 用户任务需要你处理..."
+   ├─ zhongshu: "📜 任务已到产品经理，请起草方案..."
+   ├─ menxia: "📋 产品经理方案提交审议..."
+   ├─ shangshu: "📮 质量审核已通过，请派发执行..."
    └─ 六部: "📌 请处理任务..."
 
 3. 后台异步派发（非阻塞）
@@ -437,27 +437,27 @@ _STATE_AGENT_MAP = {
   "agents": [
     {
       "id": "taizi",
-      "label": "太子",
+      "label": "前台",
       "allowAgents": ["zhongshu"]
     },
     {
       "id": "zhongshu",
-      "label": "中书省",
+      "label": "产品经理",
       "allowAgents": ["menxia", "shangshu"]
     },
     {
       "id": "menxia",
-      "label": "门下省",
+      "label": "质量审核",
       "allowAgents": ["shangshu", "zhongshu"]
     },
     {
       "id": "shangshu",
-      "label": "尚书省",
+      "label": "项目经理",
       "allowAgents": ["libu", "hubu", "bingbu", "xingbu", "gongbu", "libu_hr"]
     },
     {
       "id": "libu",
-      "label": "礼部",
+      "label": "文档部",
       "allowAgents": []
     },
     // ... 其他六部同样 allowAgents = [] ...
@@ -490,10 +490,10 @@ def can_dispatch_to(from_agent, to_agent):
 
 | 场景 | 请求 | 结果 | 理由 |
 |------|------|------|------|
-| **正常** | 中书省 → 门下省审议 | ✅ 允许 | 门下在中书的 allowAgents 中 |
-| **违反** | 中书省 → 尚书省改方案 | ❌ 拒绝 | 中书只能调门下/尚书，不能手工改尚书工作 |
-| **违反** | 工部 → 尚书省 "我完成了" | ✅ 改状态 | 通过 flow_log 和 progress_log（不是跨Agent调用） |
-| **违反** | 尚书省 → 中书省 "重新改方案" | ❌ 拒绝 | 尚书不在门下/中书的 allowAgents 中 |
+| **正常** | 产品经理 → 质量审核审议 | ✅ 允许 | 门下在中书的 allowAgents 中 |
+| **违反** | 产品经理 → 项目经理改方案 | ❌ 拒绝 | 中书只能调门下/尚书，不能手工改尚书工作 |
+| **违反** | 运维部 → 项目经理 "我完成了" | ✅ 改状态 | 通过 flow_log 和 progress_log（不是跨Agent调用） |
+| **违反** | 项目经理 → 产品经理 "重新改方案" | ❌ 拒绝 | 尚书不在门下/中书的 allowAgents 中 |
 | **防控** | Agent 伪造其他agent派发 | ❌ 拦截 | API 层验证 HTTP 请求来源/签名 |
 
 ---
@@ -692,7 +692,7 @@ _scheduler = {
     # 快照（用于自动回滚）
     'snapshot': {
         'state': 'Assigned',
-        'org': '尚书省',
+        'org': '项目经理',
         'now': '等待派发...',
         'savedAt': '2026-03-01T...',
         'note': 'scheduled-check'
@@ -741,11 +741,11 @@ FOR EACH 任务:
 
 #### 示例场景
 
-**场景：中书省Agent进程崩溃，任务卡在 Zhongshu**
+**场景：产品经理Agent进程崩溃，任务卡在 Zhongshu**
 
 ```
 T+0:
-  中书省正在规划方案
+  产品经理正在规划方案
   lastProgressAt = T
   dispatch status = success
 
@@ -764,11 +764,11 @@ T+180:
   ✅ 阶段1：重试
   - retryCount: 0 → 1
   - dispatch_for_state('JJC-20260228-E2E', 'Zhongshu', trigger='taizi-scan-retry')
-  - 派发消息发送到中书省（唤醒agent或重启）
+  - 派发消息发送到产品经理（唤醒agent或重启）
   - flow_log: "停滞180秒，自动重试第1次"
 
 T+ 240:
-  中书省 Agent 恢复（或手工重启），收到重试派发
+  产品经理 Agent 恢复（或手工重启），收到重试派发
   汇报进展："已恢复，继续规划..."
   lastProgressAt 更新为 T+240
   retryCount 重置为 0
@@ -781,11 +781,11 @@ T+360 (若仍未恢复):
   
   ✅ 阶段2：升级
   - escalationLevel: 0 → 1
-  - wake_agent('menxia', "💬 任务JJC-20260228-E2E停滞，中书省无反应，请介入")
-  - flow_log: "升级至门下省协调"
+  - wake_agent('menxia', "💬 任务JJC-20260228-E2E停滞，产品经理无反应，请介入")
+  - flow_log: "升级至质量审核协调"
   
-  门下省Agent被唤醒，可以：
-  - 检查中书省是否在线
+  质量审核Agent被唤醒，可以：
+  - 检查产品经理是否在线
   - 若在线，询问进度
   - 若离线，可能启动应急流程（如由门下暂代起草）
 
@@ -795,8 +795,8 @@ T+540 (若仍未解决):
   
   ✅ 阶段3：再次升级
   - escalationLevel: 1 → 2
-  - wake_agent('shangshu', "💬 任务长期停滞，中书省+门下省都无法推进，尚书省请介入协调")
-  - flow_log: "升级至尚书省协调"
+  - wake_agent('shangshu', "💬 任务长期停滞，产品经理+质量审核都无法推进，项目经理请介入协调")
+  - flow_log: "升级至项目经理协调"
 
 T+720 (若仍未解决):
   scheduler_scan 再次扫，发现：
@@ -806,11 +806,11 @@ T+720 (若仍未解决):
   - snapshot.state = 'Assigned' (前一个稳定状态)
   - task.state: Zhongshu → Assigned
   - dispatch_for_state('JJC-20260228-E2E', 'Assigned', trigger='taizi-auto-rollback')
-  - flow_log: "连续停滞，自动回滚到Assigned，由尚书省重新派发"
+  - flow_log: "连续停滞，自动回滚到Assigned，由项目经理重新派发"
   
   结果：
-  - 尚书省重新派发给六部执行
-  - 中书省的方案保留在前一个 snapshot 版本中
+  - 项目经理重新派发给六部执行
+  - 产品经理的方案保留在前一个 snapshot 版本中
   - 用户可以看到回滚操作，决定是否介入
 ```
 
@@ -825,20 +825,20 @@ T+720 (若仍未解决):
 ```
 请求：
 {
-  "title": "为三省六部编写完整自动化测试方案",
-  "org": "中书省",           // 可选，默认太子
+  "title": "为多Agent协作编写完整自动化测试方案",
+  "org": "产品经理",           // 可选，默认前台
   "official": "中书令",      // 可选
   "priority": "normal",
   "template_id": "test_plan", // 可选
   "params": {},
-  "target_dept": "兵部+刑部"  // 可选，派发建议
+  "target_dept": "研发部+合规部"  // 可选，派发建议
 }
 
 响应：
 {
   "ok": true,
   "taskId": "JJC-20260228-001",
-  "message": "旨意 JJC-20260228-001 已下达，正在派发给太子"
+  "message": "任务 JJC-20260228-001 已下达，正在派发给前台"
 }
 ```
 
@@ -853,15 +853,15 @@ GET /api/task-activity/JJC-20260228-E2E
   "ok": true,
   "taskId": "JJC-20260228-E2E",
   "taskMeta": {
-    "title": "为三省六部编写完整自动化测试方案",
+    "title": "为多Agent协作编写完整自动化测试方案",
     "state": "Assigned",
-    "org": "尚书省",
+    "org": "项目经理",
     "output": "",
     "block": "无",
     "priority": "normal"
   },
   "agentId": "shangshu",
-  "agentLabel": "尚书省",
+  "agentLabel": "项目经理",
   
   // ── 完整活动流（59条示例）──
   "activity": [
@@ -869,19 +869,19 @@ GET /api/task-activity/JJC-20260228-E2E
     {
       "at": "2026-02-28T10:00:00Z",
       "kind": "flow",
-      "from": "皇上",
-      "to": "太子",
-      "remark": "下旨：为三省六部编写完整自动化测试方案"
+      "from": "用户",
+      "to": "前台",
+      "remark": "下发：为多Agent协作编写完整自动化测试方案"
     },
     // progress_log (11条)
     {
       "at": "2026-02-28T10:35:00Z",
       "kind": "progress",
-      "text": "已接旨。分析测试需求，拟定三层测试方案...",
+      "text": "已接单。分析测试需求，拟定三层测试方案...",
       "agent": "zhongshu",
-      "agentLabel": "中书省",
+      "agentLabel": "产品经理",
       "state": "Zhongshu",
-      "org": "中书省",
+      "org": "产品经理",
       "tokens": 4500,
       "cost": 0.0045,
       "elapsed": 120
@@ -929,22 +929,22 @@ GET /api/task-activity/JJC-20260228-E2E
   "relatedAgents": ["taizi", "zhongshu", "menxia"],
   "phaseDurations": [
     {
-      "phase": "太子",
+      "phase": "前台",
       "durationText": "30分",
       "ongoing": false
     },
     {
-      "phase": "中书省",
+      "phase": "产品经理",
       "durationText": "4小时32分",
       "ongoing": false
     },
     {
-      "phase": "门下省",
+      "phase": "质量审核",
       "durationText": "1小时15分",
       "ongoing": false
     },
     {
-      "phase": "尚书省",
+      "phase": "项目经理",
       "durationText": "4小时10分",
       "ongoing": true
     }
@@ -986,13 +986,13 @@ GET /api/task-activity/JJC-20260228-E2E
 #### 审批操作：`POST /api/review-action/{task_id}`
 
 ```
-请求（准奏）：
+请求（通过）：
 {
   "action": "approve",
   "comment": "方案可行，已采纳改进建议"
 }
 
-OR 请求（封驳）：
+OR 请求（驳回）：
 {
   "action": "reject",
   "comment": "需补充性能测试，第N轮审议"
@@ -1001,7 +1001,7 @@ OR 请求（封驳）：
 响应：
 {
   "ok": true,
-  "message": "JJC-20260228-E2E 已准奏 (已自动派发 Agent)",
+  "message": "JJC-20260228-E2E 已通过 (已自动派发 Agent)",
   "state": "Assigned",
   "reviewRound": 1
 }
@@ -1013,14 +1013,14 @@ OR 请求（封驳）：
 
 Agent 通过此工具与看板交互，共7个命令：
 
-#### 命令1：创建任务（太子或中书手工）
+#### 命令1：创建任务（前台或中书手工）
 
 ```bash
 python3 scripts/kanban_update.py create \
   JJC-20260228-E2E \
-  "为三省六部编写完整自动化测试方案" \
+  "为多Agent协作编写完整自动化测试方案" \
   Zhongshu \
-  中书省 \
+  产品经理 \
   中书令
 
 # 说明：通常不需要手工运行（看板API自动触发），除非debug
@@ -1032,7 +1032,7 @@ python3 scripts/kanban_update.py create \
 python3 scripts/kanban_update.py state \
   JJC-20260228-E2E \
   Menxia \
-  "方案提交门下省审议"
+  "方案提交质量审核审议"
 
 # 说明：
 # - 第一个参数：task_id
@@ -1041,7 +1041,7 @@ python3 scripts/kanban_update.py state \
 # 
 # 效果：
 # - task.state = Menxia
-# - task.org 自动推断为 "门下省"
+# - task.org 自动推断为 "质量审核"
 # - 触发派发 menxia agent
 # - flow_log 记录转移
 ```
@@ -1051,8 +1051,8 @@ python3 scripts/kanban_update.py state \
 ```bash
 python3 scripts/kanban_update.py flow \
   JJC-20260228-E2E \
-  "中书省" \
-  "门下省" \
+  "产品经理" \
+  "质量审核" \
   "📋 方案提交审核，请审议"
 
 # 说明：
@@ -1070,8 +1070,8 @@ python3 scripts/kanban_update.py flow \
 ```bash
 python3 scripts/kanban_update.py progress \
   JJC-20260228-E2E \
-  "已完成需求分析和方案初稿，现正征询工部意见" \
-  "1.需求分析✅|2.方案设计✅|3.工部咨询🔄|4.待门下审议"
+  "已完成需求分析和方案初稿，现正征询运维部意见" \
+  "1.需求分析✅|2.方案设计✅|3.运维部咨询🔄|4.待门下审议"
 
 # 说明：
 # - 参数1：task_id
@@ -1083,13 +1083,13 @@ python3 scripts/kanban_update.py progress \
 #   {
 #     "at": now_iso(),
 #     "agent": inferred_agent_id,
-#     "text": "已完成需求分析和方案初稿，现正征询工部意见",
+#     "text": "已完成需求分析和方案初稿，现正征询运维部意见",
 #     "state": task.state,
 #     "org": task.org,
 #     "todos": [
 #       {"id": "1", "title": "需求分析", "status": "completed"},
 #       {"id": "2", "title": "方案设计", "status": "completed"},
-#       {"id": "3", "title": "工部咨询", "status": "in-progress"},
+#       {"id": "3", "title": "运维部咨询", "status": "in-progress"},
 #       {"id": "4", "title": "待门下审议", "status": "not-started"}
 #     ],
 #     "tokens": (自动从 openclaw 会话数据读取),
@@ -1119,7 +1119,7 @@ python3 scripts/kanban_update.py done \
 # 效果：
 # - task.state = Done（从 Review 推进）
 # - task.output = "https://..."
-# - 自动发送Feishu消息给皇上（太子转报）
+# - 自动发送Feishu消息给用户（前台转报）
 # - flow_log 记录完成转移
 ```
 
@@ -1129,17 +1129,17 @@ python3 scripts/kanban_update.py done \
 # 叫停（随时可恢复）
 python3 scripts/kanban_update.py stop \
   JJC-20260228-E2E \
-  "等待工部反馈继续"
+  "等待运维部反馈继续"
 
 # 说明：
 # - task.state 暂存（_prev_state）
-# - task.block = "等待工部反馈继续"
+# - task.block = "等待运维部反馈继续"
 # - 看板显示 "⏸️ 已叫停"
 #
 # 恢复：
 python3 scripts/kanban_update.py resume \
   JJC-20260228-E2E \
-  "工部已反馈，继续执行"
+  "运维部已反馈，继续执行"
 #
 # - task.state 恢复到 _prev_state
 # - 重新派发 agent
@@ -1157,12 +1157,12 @@ python3 scripts/kanban_update.py cancel \
 
 ## 💡 第四部分：对标与对比
 
-### CrewAI / AutoGen 的传统方式 vs 三省六部的制度化方式
+### CrewAI / AutoGen 的传统方式 vs 多Agent协作的制度化方式
 
-| 维度 | CrewAI | AutoGen | **三省六部** |
+| 维度 | CrewAI | AutoGen | **多Agent协作** |
 |------|--------|---------|----------|
 | **协作模式** | 自由讨论（Agent自主选择协作对象） | 面板+回调（Human-in-the-loop） | **制度化协作（权限矩阵+状态机）** |
-| **质量保障** | 依赖Agent智能（无审核）| Human审核（频繁中断） | **自动审核（门下省必审）+可干预** |
+| **质量保障** | 依赖Agent智能（无审核）| Human审核（频繁中断） | **自动审核（质量审核必审）+可干预** |
 | **权限控制** | ❌ 无 | ⚠️ Hard-coded | **✅ 配置化权限矩阵** |
 | **可观测性** | 低（Agent消息黑盒） | 中（Human看到对话）| **极高（59条活动/任务）** |
 | **可干预性** | ❌ 无（跑起来后很难叫停） | ✅ 有（需要人工批准） | **✅ 有（一键stop/cancel/advance）** |
@@ -1181,7 +1181,7 @@ if task_seems_done:
     send_message_to_someone()  # 可能发错人，可能重复
 ```
 
-**三省六部的"严格"方式**
+**多Agent协作的"严格"方式**
 ```python
 # 任务状态严格受限，下一步由系统决定
 if task.state == 'Zhongshu' and agent_id == 'zhongshu':
@@ -1206,7 +1206,7 @@ if task.state == 'Zhongshu' and agent_id == 'zhongshu':
 
 ```
 症状：任务卡在某个状态，180秒无新进展
-报警：太子调度系统检测到停滞
+报警：前台调度系统检测到停滞
 
 自动处理流程：
   T+0: 崩溃
@@ -1217,19 +1217,19 @@ if task.state == 'Zhongshu' and agent_id == 'zhongshu':
   
   T+360: 若仍未恢复
     ✅ 第2阶段：升级协调
-       - 唤醒门下省agent
-       - 汇报："中书省无响应，请介入"
+       - 唤醒质量审核agent
+       - 汇报："产品经理无响应，请介入"
        - 门下可能接管或代理工作
   
   T+540: 若仍未恢复
     ✅ 第3阶段：再次升级
-       - 唤醒尚书省agent
+       - 唤醒项目经理agent
        - 汇报："任务彻底卡住，请企业级协调"
   
   T+720: 若仍未恢复
     ✅ 第4阶段：自动回滚
        - 恢复到前一个稳定状态
-       - 派发给尚书省重新处理
+       - 派发给项目经理重新处理
        - 用户可看到完整回滚链路
 ```
 
@@ -1238,11 +1238,11 @@ if task.state == 'Zhongshu' and agent_id == 'zhongshu':
 假设 `zhongshu` agent 想骗过系统：
 
 ```python
-# 尝试伪造门下省的准奏（直接改JSON）
+# 尝试伪造质量审核的通过（直接改JSON）
 task['flow_log'].append({
-    'from': '门下省',      # ❌ 假冒身份
-    'to': '尚书省',
-    'remark': '✅ 准奏'
+    'from': '质量审核',      # ❌ 假冒身份
+    'to': '项目经理',
+    'remark': '✅ 通过'
 })
 
 # 系统防御：
@@ -1261,16 +1261,16 @@ task['flow_log'].append({
 ### 场景3：业务流程违反（如中书越权调尚书改方案）
 
 ```python
-# 中书省想绕过门下审议，直接咨询尚书省
+# 产品经理想绕过门下审议，直接咨询项目经理
 try:
     result = dispatch_to_agent('shangshu', '请帮我审查一下这个方案')
 except PermissionError:
     # ❌ 权限矩阵拦截
     log.error('zhongshu 无权调用 shangshu (仅限: menxia, shangshu)')
 
-# 门下省想升级到皇上
+# 质量审核想升级到用户
 try:
-    result = dispatch_to_agent('taizi', '我需要皇上的指示')
+    result = dispatch_to_agent('taizi', '我需要用户的指示')
 except PermissionError:
     # ❌ 权限矩阵拦截
     log.error('menxia 无权调用 taizi')
@@ -1285,11 +1285,11 @@ except PermissionError:
 ```
 1. 全任务列表
    └─ 所有任务的汇总视图（按创建时间倒序）
-   └─ 快速过滤：活跃/完成/已封驳
+   └─ 快速过滤：活跃/完成/已驳回
 
 2. 按状态分类
    ├─ Pending（待处理）
-   ├─ Taizi（太子分拣中）
+   ├─ Taizi（前台分拣中）
    ├─ Zhongshu（中书规划中）
    ├─ Menxia（门下审议中）
    ├─ Assigned（尚书派发中）
@@ -1298,10 +1298,10 @@ except PermissionError:
    └─ Done/Cancelled（已完成/已取消）
 
 3. 按部门分类
-   ├─ 太子任务
-   ├─ 中书省任务
-   ├─ 门下省任务
-   ├─ 尚书省任务
+   ├─ 前台任务
+   ├─ 产品经理任务
+   ├─ 质量审核任务
+   ├─ 项目经理任务
    ├─ 六部任务（并行视图）
    └─ 已派发任务
 
@@ -1333,7 +1333,7 @@ except PermissionError:
 8. 审批工单池
    ├─ 清单所有在 Menxia 等待审批的任务
    ├─ 按停留时长排序
-   ├─ 一键准奏/封驳
+   ├─ 一键通过/驳回
 
 9. 今日概览
    ├─ 今日新建任务数
@@ -1363,7 +1363,7 @@ GET /api/agents-status
   "agents": [
     {
       "id": "taizi",
-      "label": "太子",
+      "label": "前台",
       "status": "running",        // running|idle|offline|unconfigured
       "statusLabel": "🟢 运行中",
       "lastActive": "03-02 14:30", // 最后活跃时间
@@ -1385,31 +1385,31 @@ GET /api/agents-status
 
 ```bash
 # ═══════════════════════════════════════════════════════════
-# 第1步：皇上下旨（飞书消息或看板API）
+# 第1步：用户下发（飞书消息或看板API）
 # ═══════════════════════════════════════════════════════════
 
 curl -X POST http://127.0.0.1:7891/api/create-task \
   -H "Content-Type: application/json" \
   -d '{
-    "title": "编写三省六部协议文档",
+    "title": "编写多Agent协作协议文档",
     "priority": "high"
   }'
 
 # 响应：JJC-20260302-001 已创建
-# 太子Agent 收到通知："📜 皇上旨意..."
+# 前台Agent 收到通知："📜 用户任务..."
 
 # ═══════════════════════════════════════════════════════════
-# 第2步：太子接旨分拣（Agent自动）
+# 第2步：前台接单分拣（Agent自动）
 # ═══════════════════════════════════════════════════════════
 
-# 太子Agent 判定：这是"工作旨意"（非闲聊）
+# 前台Agent 判定：这是"工作任务"（非闲聊）
 # 自动运行：
 python3 scripts/kanban_update.py state \
   JJC-20260302-001 \
   Zhongshu \
-  "分拣完毕，转中书省起草"
+  "分拣完毕，转产品经理起草"
 
-# 中书省Agent 收到派发通知
+# 产品经理Agent 收到派发通知
 
 # ═══════════════════════════════════════════════════════════
 # 第3步：中书起草（Agent工作）
@@ -1431,21 +1431,21 @@ python3 scripts/kanban_update.py progress \
 # 第二次汇报（再过90分钟）：
 python3 scripts/kanban_update.py progress \
   JJC-20260302-001 \
-  "文档初稿已完成，现提交门下省审议" \
+  "文档初稿已完成，现提交质量审核审议" \
   "1.需求分析✅|2.文档规划✅|3.内容编写✅|4.待审查"
 
 python3 scripts/kanban_update.py flow \
   JJC-20260302-001 \
-  "中书省" \
-  "门下省" \
+  "产品经理" \
+  "质量审核" \
   "提交审议"
 
 python3 scripts/kanban_update.py state \
   JJC-20260302-001 \
   Menxia \
-  "方案提交门下省审议"
+  "方案提交质量审核审议"
 
-# 门下省Agent 收到派发通知，开始审议
+# 质量审核Agent 收到派发通知，开始审议
 
 # ═══════════════════════════════════════════════════════════
 # 第4步：门下审议（Agent工作）
@@ -1455,54 +1455,54 @@ python3 scripts/kanban_update.py state \
 
 # 审议结果（30分钟后）：
 
-# 情景A：准奏
+# 情景A：通过
 python3 scripts/kanban_update.py state \
   JJC-20260302-001 \
   Assigned \
-  "✅ 准奏，已采纳改进建议"
+  "✅ 通过，已采纳改进建议"
 
 python3 scripts/kanban_update.py flow \
   JJC-20260302-001 \
-  "门下省" \
-  "尚书省" \
-  "✅ 准奏：文档质量良好，建议补充代码示例"
+  "质量审核" \
+  "项目经理" \
+  "✅ 通过：文档质量良好，建议补充代码示例"
 
-# 尚书省Agent 收到派发
+# 项目经理Agent 收到派发
 
-# 情景B：封驳
+# 情景B：驳回
 python3 scripts/kanban_update.py state \
   JJC-20260302-001 \
   Zhongshu \
-  "🚫 封驳：需补充协议规范部分"
+  "🚫 驳回：需补充协议规范部分"
 
 python3 scripts/kanban_update.py flow \
   JJC-20260302-001 \
-  "门下省" \
-  "中书省" \
-  "🚫 封驳：协议部分过于简略，需补充权限矩阵示例"
+  "质量审核" \
+  "产品经理" \
+  "🚫 驳回：协议部分过于简略，需补充权限矩阵示例"
 
-# 中书省Agent 收到唤醒，重新修改方案
+# 产品经理Agent 收到唤醒，重新修改方案
 # （3小时后 → 重新提交门下审议）
 
 # ═══════════════════════════════════════════════════════════
 # 第5步：尚书派发（Agent工作）
 # ═══════════════════════════════════════════════════════════
 
-# 尚书省Agent 分析文档应派给谁：
-# - 礼部：文档排版和格式
-# - 兵部：代码示例补充
-# - 工部：部署文档
+# 项目经理Agent 分析文档应派给谁：
+# - 文档部：文档排版和格式
+# - 研发部：代码示例补充
+# - 运维部：部署文档
 
 python3 scripts/kanban_update.py state \
   JJC-20260302-001 \
   Doing \
-  "派发给礼部+兵部+工部三部并行执行"
+  "派发给文档部+研发部+运维部三部并行执行"
 
 python3 scripts/kanban_update.py flow \
   JJC-20260302-001 \
-  "尚书省" \
+  "项目经理" \
   "六部" \
-  "派发执行：礼部排版|兵部代码示例|工部基础设施部分"
+  "派发执行：文档部排版|研发部代码示例|运维部基础设施部分"
 
 # 六部Agent 分别收到派发
 
@@ -1510,19 +1510,19 @@ python3 scripts/kanban_update.py flow \
 # 第6步：六部执行（并行）
 # ═══════════════════════════════════════════════════════════
 
-# 礼部进展汇报（20分钟）：
+# 文档部进展汇报（20分钟）：
 python3 scripts/kanban_update.py progress \
   JJC-20260302-001 \
   "已完成文档排版和目录调整，现待其他部门内容补充" \
   "1.排版✅|2.目录调整✅|3.等待代码示例|4.等待基础设施部分"
 
-# 兵部进展汇报（40分钟）：
+# 研发部进展汇报（40分钟）：
 python3 scripts/kanban_update.py progress \
   JJC-20260302-001 \
   "已编写5个代码示例（权限检查、派发流程、session融合等），待集成到文档" \
   "1.分析需求✅|2.编码示例✅|3.集成文档🔄|4.测试验证"
 
-# 工部进展汇报（60分钟）：
+# 运维部进展汇报（60分钟）：
 python3 scripts/kanban_update.py progress \
   JJC-20260302-001 \
   "已编写Docker+K8s部署部分，Nginx配置和让证书更新文案完成" \
@@ -1532,7 +1532,7 @@ python3 scripts/kanban_update.py progress \
 # 第7步：尚书汇总（Agent工作）
 # ═══════════════════════════════════════════════════════════
 
-# 等所有部门汇报完成后，尚书省汇总所有成果
+# 等所有部门汇报完成后，项目经理汇总所有成果
 
 python3 scripts/kanban_update.py progress \
   JJC-20260302-001 \
@@ -1544,7 +1544,7 @@ python3 scripts/kanban_update.py state \
   Review \
   "所有部门完成，进入审查阶段"
 
-# 皇上/太子收到通知，审查最终成果
+# 用户/前台收到通知，审查最终成果
 
 # ═══════════════════════════════════════════════════════════
 # 第8步：完成（终态）
@@ -1553,7 +1553,7 @@ python3 scripts/kanban_update.py state \
 python3 scripts/kanban_update.py done \
   JJC-20260302-001 \
   "https://github.com/org/repo/docs/architecture.md" \
-  "三省六部协议文档已完成，包含89页，5个阶段历时3天，总消耗成本$2.34"
+  "多Agent协作协议文档已完成，包含89页，5个阶段历时3天，总消耗成本$2.34"
 
 # 看板显示：
 # - 状态：Done ✅
@@ -1587,7 +1587,7 @@ curl http://127.0.0.1:7891/api/task-activity/JJC-20260302-001
 
 ## 📋 总结
 
-**三省六部是一个制度化的AI多Agent系统**，不是传统的"自由讨论"框架。它通过：
+**多Agent协作是一个制度化的AI多Agent系统**，不是传统的"自由讨论"框架。它通过：
 
 1. **业务层**：模仿古代帝国官僚体系，建立分权制衡的组织结构
 2. **技术层**：状态机 + 权限矩阵 + 自动派发 + 调度重试，确保流程可控
@@ -1596,4 +1596,4 @@ curl http://127.0.0.1:7891/api/task-activity/JJC-20260302-001
 
 **核心价值**：用制度确保质量，用透明确保信心，用自动化确保效率。
 
-相比 CrewAI/AutoGen 的"自由+人工管理"，三省六部提供了一套**企业级的AI协作框架**。
+相比 CrewAI/AutoGen 的"自由+人工管理"，多Agent协作提供了一套**企业级的AI协作框架**。

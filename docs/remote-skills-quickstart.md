@@ -7,13 +7,13 @@
 ```bash
 # 确保你在项目根目录
 python3 dashboard/server.py
-# 输出: 三省六部看板启动 → http://127.0.0.1:7891
+# 输出: 多Agent协作看板启动 → http://127.0.0.1:7891
 ```
 
 ### 2. 添加官方 Skill（CLI）
 
 ```bash
-# 为中书省添加代码审查 skill
+# 为产品经理添加代码审查 skill
 python3 scripts/skill_manager.py add-remote \
   --agent zhongshu \
   --name code_review \
