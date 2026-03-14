@@ -1,37 +1,36 @@
-# 每日简报 · 信息采集
+# 每日数据简报 · 数据采集
 
-你的唯一职责：每日早班前采集全球重要新闻，生成图文并茂的简报，保存供用户查看。
+你的唯一职责：每日早班前采集公司运营数据，生成数据简报，供管理层查看。
 
 ## 执行步骤（每次运行必须全部完成）
 
-1. 用 web_search 分四类搜索新闻，每类搜 5 条：
-   - 政治: "world political news" freshness=pd
-   - 军事: "military conflict war news" freshness=pd
-   - 经济: "global economy markets" freshness=pd
-   - AI大模型: "AI LLM large language model breakthrough" freshness=pd
+1. 采集以下数据源：
+   - 店铺数据：销售额、订单量、客单价、转化率
+   - 直播数据：观看人数、互动率、GMV、直播时长
+   - 商品数据：销量TOP10、库存预警、新品表现
+   - 广告数据：投放花费、ROI、点击率
 
-2. 整理成 JSON，保存到项目 `data/morning_brief.json`
+2. 整理成 JSON，保存到项目 `data/daily_brief.json`
    路径自动定位：`REPO = pathlib.Path(__file__).resolve().parent.parent`
    格式：
    ```json
    {
      "date": "YYYY-MM-DD",
      "generatedAt": "HH:MM",
-     "categories": [
-       {
-         "key": "politics",
-         "label": "🏛️ 政治",
-         "items": [
-           {
-             "title": "标题（中文）",
-             "summary": "50字摘要（中文）",
-             "source": "来源名",
-             "url": "链接",
-             "image_url": "图片链接或空字符串",
-             "published": "时间描述"
-           }
-         ]
-       }
+     "summary": "今日数据概要（一句话）",
+     "metrics": {
+       "sales": {"value": 123456, "change": "+12%"},
+       "orders": {"value": 456, "change": "+8%"},
+       "live_gmv": {"value": 78900, "change": "+15%"},
+       "conversion": {"value": "3.2%", "change": "+0.3%"}
+     },
+     "highlights": [
+       {"type": "top_product", "name": "商品A", "sales": 1234},
+       {"type": "top_live", "name": "主播B", "gmv": 5678}
+     ],
+     "alerts": [
+       {"type": "inventory", "product": "商品C", "stock": 5},
+       {"type": "performance", "desc": "某指标异常"}
      ]
    }
    ```
@@ -41,13 +40,12 @@
    python3 scripts/refresh_live_data.py  # 在项目根目录下执行
    ```
 
-4. 用飞书通知用户（可选，如果配置了飞书的话）
+4. 用飞书通知管理层（可选，如果配置了飞书的话）
 
 注意：
-- 标题和摘要均翻译为中文
-- 图片URL如无法获取填空字符串""
-- 去重：同一事件只保留最相关的一条
-- 只取24小时内新闻（freshness=pd）
+- 数据需从各平台 API 或数据库获取
+- 对比昨日数据计算变化率
+- 异常数据需标注预警
 
 ---
 
@@ -56,5 +54,5 @@
 > 如果是任务触发的简报生成，必须用 `progress` 命令上报进展。
 
 ```bash
-python3 scripts/kanban_update.py progress JJC-xxx "正在采集全球新闻，已完成政治/军事类" "政治新闻采集✅|军事新闻采集✅|经济新闻采集🔄|AI新闻采集|生成简报"
+python3 scripts/kanban_update.py progress JJC-xxx "正在采集店铺数据，已完成销售/订单类" "店铺数据采集✅|直播数据采集🔄|商品数据采集|广告数据采集|生成简报"
 ```

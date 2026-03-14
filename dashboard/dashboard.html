@@ -74,7 +74,7 @@
     .dt-产品经理{border-color:#a07aff44;color:#a07aff;background:#1a0f38}
     .dt-质量审核{border-color:#6a9eff44;color:#6a9eff;background:#0f1a38}
     .dt-项目经理{border-color:#6aef9a44;color:#6aef9a;background:#0a2018}
-    .dt-文档部{border-color:#f5c84244;color:#f5c842;background:#201a08}
+    .dt-内容运营{border-color:#f5c84244;color:#f5c842;background:#201a08}
     .dt-财务{border-color:#ff9a6a44;color:#ff9a6a;background:#28100a}
     .dt-研发部{border-color:#ff527044;color:#ff5270;background:#280a10}
     .dt-合规部{border-color:#cc444444;color:#cc4444;background:#280808}
@@ -742,14 +742,14 @@
       <span class="sess-filter" data-sf="active" onclick="filterSessions('active',this)">进行中</span>
       <span class="sess-filter" data-sf="zhongshu" onclick="filterSessions('zhongshu',this)">产品经理</span>
       <span class="sess-filter" data-sf="shangshu" onclick="filterSessions('shangshu',this)">项目经理</span>
-      <span class="sess-filter" data-sf="libu" onclick="filterSessions('libu',this)">文档部</span>
+      <span class="sess-filter" data-sf="libu" onclick="filterSessions('libu',this)">内容运营</span>
       <span class="sess-filter" data-sf="hubu" onclick="filterSessions('hubu',this)">财务</span>
       <span class="sess-filter" data-sf="bingbu" onclick="filterSessions('bingbu',this)">研发部</span>
       <span class="sess-filter" data-sf="xingbu" onclick="filterSessions('xingbu',this)">合规部</span>
       <span class="sess-filter" data-sf="gongbu" onclick="filterSessions('gongbu',this)">运维部</span>
       <span class="sess-filter" data-sf="libu_hr" onclick="filterSessions('libu_hr',this)">人力资源</span>
       <span class="sess-filter" data-sf="menxia" onclick="filterSessions('menxia',this)">质量审核</span>
-      <span class="sess-filter" data-sf="zaochao" onclick="filterSessions('zaochao',this)">钦天监</span>
+      <span class="sess-filter" data-sf="zaochao" onclick="filterSessions('zaochao',this)">数据简报</span>
       <span class="sess-filter" data-sf="live_ops" onclick="filterSessions('live_ops',this)">直播运营</span>
       <span class="sess-filter" data-sf="store_ops" onclick="filterSessions('store_ops',this)">店铺运营</span>
       <span class="sess-filter" data-sf="sourcing" onclick="filterSessions('sourcing',this)">选品</span>
@@ -926,7 +926,7 @@ const PIPE = [
 const PIPE_STATE_IDX = {Inbox:0,Pending:0,Taizi:1,Zhongshu:2,Menxia:3,Assigned:4,Doing:5,Review:6,Done:7,Blocked:5,Cancelled:5,Next:4};
 
 /* ══ DEPT COLORS ══ */
-const DEPT_COLOR = {'前台':'#e8a040','产品经理':'#a07aff','质量审核':'#6a9eff','项目经理':'#6aef9a','文档部':'#f5c842','财务':'#ff9a6a','研发部':'#ff5270','合规部':'#cc4444','运维部':'#44aaff','人力资源':'#9b59b6','用户':'#ffd700','汇报':'#2ecc8a','直播运营':'#ff66aa','店铺运营':'#66ccff','选品':'#ffaa44','采购跟单':'#88dd66'};
+const DEPT_COLOR = {'前台':'#e8a040','产品经理':'#a07aff','质量审核':'#6a9eff','项目经理':'#6aef9a','内容运营':'#f5c842','财务':'#ff9a6a','研发部':'#ff5270','合规部':'#cc4444','运维部':'#44aaff','人力资源':'#9b59b6','用户':'#ffd700','汇报':'#2ecc8a','直播运营':'#ff66aa','店铺运营':'#66ccff','选品':'#ffaa44','采购跟单':'#88dd66'};
 function deptColor(d){return DEPT_COLOR[d]||'#6a9eff'}
 
 /* ══ UTILS ══ */
@@ -1152,13 +1152,13 @@ function renderMonitor(tasks){
     {id:'zhongshu',label:'产品经理',emoji:'📜',role:'产品经理',  rank:'高级'},
     {id:'menxia',  label:'质量审核',emoji:'🔍',role:'质量审核',    rank:'高级'},
     {id:'shangshu',label:'项目经理',emoji:'📮',role:'项目经理',  rank:'高级'},
-    {id:'libu',    label:'文档部',  emoji:'📝',role:'文档部',rank:'中级'},
+    {id:'libu',    label:'内容运营',  emoji:'📝',role:'内容运营',rank:'中级'},
     {id:'hubu',    label:'财务',  emoji:'💰',role:'财务',rank:'中级'},
     {id:'bingbu',  label:'研发部',  emoji:'⚔️',role:'研发部',rank:'中级'},
     {id:'xingbu',  label:'合规部',  emoji:'⚖️',role:'合规部',rank:'中级'},
     {id:'gongbu',  label:'运维部',  emoji:'🔧',role:'运维部',rank:'中级'},
     {id:'libu_hr', label:'人力资源',  emoji:'👔',role:'人力资源',rank:'中级'},
-    {id:'zaochao', label:'每日简报',emoji:'🌟',role:'简报官',  rank:'中级'},
+    {id:'zaochao', label:'数据简报',emoji:'📊',role:'数据分析师',  rank:'中级'},
     {id:'live_ops', label:'直播运营',emoji:'🎬',role:'直播运营',rank:'中级'},
     {id:'store_ops', label:'店铺运营',emoji:'🏪',role:'店铺运营',rank:'中级'},
     {id:'sourcing', label:'选品',emoji:'🎯',role:'选品',rank:'中级'},
@@ -1559,7 +1559,7 @@ function renderLiveActivity(data){
   const phaseBar = document.getElementById('la-phase-bar');
   if(phaseBar && data.phaseDurations && data.phaseDurations.length){
     const maxDur = Math.max(...data.phaseDurations.map(p=>p.durationSec||1), 1);
-    const phaseColors = {'用户':'#eab308','前台':'#f97316','产品经理':'#3b82f6','质量审核':'#8b5cf6','项目经理':'#10b981','六部':'#06b6d4','文档部':'#ec4899','财务':'#f59e0b','研发部':'#ef4444','合规部':'#6366f1','运维部':'#14b8a6','人力资源':'#d946ef'};
+    const phaseColors = {'用户':'#eab308','前台':'#f97316','产品经理':'#3b82f6','质量审核':'#8b5cf6','项目经理':'#10b981','六部':'#06b6d4','内容运营':'#ec4899','财务':'#f59e0b','研发部':'#ef4444','合规部':'#6366f1','运维部':'#14b8a6','人力资源':'#d946ef'};
     let totalDurText = data.totalDuration ? `<span style="margin-left:auto;font-size:10px;color:var(--muted)">总耗时 ${data.totalDuration}</span>` : '';
     phaseBar.innerHTML = `<div style="padding:4px 0 8px;border-bottom:1px solid var(--border)">
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px"><span style="font-size:11px;font-weight:600;color:var(--fg)">⏱ 阶段耗时</span>${totalDurText}</div>
@@ -1624,7 +1624,7 @@ function renderLiveActivity(data){
   if(dot){dot.classList.toggle('idle',!isActive);}
 
   // Agent label map
-  const _agentLabels={main:'前台',zhongshu:'产品经理',menxia:'质量审核',shangshu:'项目经理',libu:'文档部',hubu:'财务',bingbu:'研发部',xingbu:'合规部',gongbu:'运维部',libu_hr:'人力资源',zaochao:'钦天监'};
+  const _agentLabels={main:'前台',zhongshu:'产品经理',menxia:'质量审核',shangshu:'项目经理',libu:'内容运营',hubu:'财务',bingbu:'研发部',xingbu:'合规部',gongbu:'运维部',libu_hr:'人力资源',zaochao:'数据简报'};
 
   const renderEntry=(a)=>{
     const time=a.at?fmtActivityTime(a.at):'';
@@ -2950,7 +2950,7 @@ function exportMemorial(taskIdJson){
 const TEMPLATES = [
   {id:'tpl-weekly-report', cat:'日常办公', icon:'📝', name:'周报生成',
    desc:'基于本周看板数据和各部产出，自动生成结构化周报',
-   depts:['财务','文档部'], est:'~10分钟', cost:'¥0.5',
+   depts:['财务','内容运营'], est:'~10分钟', cost:'¥0.5',
    params:[
      {key:'date_range', label:'报告周期', type:'text', default:'本周', required:true},
      {key:'focus', label:'重点关注（逗号分隔）', type:'text', default:'项目进展,下周计划'},
@@ -2977,7 +2977,7 @@ const TEMPLATES = [
    command:'设计并实现一个 {tech} 的 RESTful API：{requirement}。鉴权方式：{auth}'},
   {id:'tpl-competitor', cat:'数据分析', icon:'📊', name:'竞品分析',
    desc:'爬取竞品网站数据，分析对比，生成结构化报告',
-   depts:['研发部','财务','文档部'], est:'~60分钟', cost:'¥5',
+   depts:['研发部','财务','内容运营'], est:'~60分钟', cost:'¥5',
    params:[
      {key:'targets', label:'竞品名称/URL（每行一个）', type:'textarea', required:true},
      {key:'dimensions', label:'分析维度', type:'text', default:'产品功能,定价策略,用户评价'},
@@ -2986,7 +2986,7 @@ const TEMPLATES = [
    command:'对以下竞品进行分析：\n{targets}\n\n分析维度：{dimensions}，输出格式：{format}'},
   {id:'tpl-data-report', cat:'数据分析', icon:'📈', name:'数据报告',
    desc:'对给定数据集进行清洗、分析、可视化，输出分析报告',
-   depts:['财务','文档部'], est:'~30分钟', cost:'¥2',
+   depts:['财务','内容运营'], est:'~30分钟', cost:'¥2',
    params:[
      {key:'data_source', label:'数据源描述/路径', type:'text', required:true},
      {key:'questions', label:'分析问题（每行一个）', type:'textarea'},
@@ -2995,7 +2995,7 @@ const TEMPLATES = [
    command:'对数据 {data_source} 进行分析。{questions}\n需要可视化：{viz}'},
   {id:'tpl-blog', cat:'内容创作', icon:'✍️', name:'博客文章',
    desc:'给定主题和要求，生成高质量博客文章',
-   depts:['文档部'], est:'~15分钟', cost:'¥1',
+   depts:['内容运营'], est:'~15分钟', cost:'¥1',
    params:[
      {key:'topic', label:'文章主题', type:'text', required:true},
      {key:'audience', label:'目标读者', type:'text', default:'技术人员'},
@@ -3014,7 +3014,7 @@ const TEMPLATES = [
    command:'为项目「{project}」生成{env}部署方案，CI/CD使用{ci}'},
   {id:'tpl-email', cat:'内容创作', icon:'📧', name:'邮件/通知文案',
    desc:'根据场景和目的，生成专业邮件或通知文案',
-   depts:['文档部'], est:'~5分钟', cost:'¥0.3',
+   depts:['内容运营'], est:'~5分钟', cost:'¥0.3',
    params:[
      {key:'scenario', label:'使用场景', type:'select', options:['商务邮件','产品发布','客户通知','内部公告'], default:'商务邮件'},
      {key:'purpose', label:'目的/内容', type:'textarea', required:true},
