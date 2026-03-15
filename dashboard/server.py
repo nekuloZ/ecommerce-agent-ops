@@ -486,6 +486,64 @@ def _compute_checksum(content: str) -> str:
     return hashlib.sha256(content.encode()).hexdigest()[:16]
 
 
+def send_secretary_message(text: str, channel: str = 'telegram') -> bool:
+    """通过秘书发送消息给用户（IM 优先设计的核心函数）
+    
+    Args:
+        text: 消息内容
+        channel: 发送渠道，默认 telegram（优先）
+                 - 'telegram': 发送 Telegram 消息
+                 - 'feishu': 发送飞书消息
+                 - 'auto': 根据配置自动选择（优先 telegram）
+    
+    Returns:
+        bool: 是否发送成功
+    """
+    try:
+        import requests
+        config_path = pathlib.Path(__file__).parent.parent.parent.parent / '.openclaw' / 'openclaw.json'
+        if not config_path.exists():
+            log.warning('openclaw.json 不存在，无法发送消息')
+            return False
+        
+        with open(config_path, 'r') as cf:
+            oc_config = json.load(cf)
+        
+        channels_cfg = oc_config.get('channels', {})
+        
+        # 优先尝试 Telegram
+        if channel in ('telegram', 'auto'):
+            tg_cfg = channels_cfg.get('telegram', {})
+            bot_token = tg_cfg.get('botToken', '')
+            allow_from = tg_cfg.get('allowFrom', [])
+            
+            if bot_token and allow_from and tg_cfg.get('enabled', False):
+                for user_id in allow_from:
+                    resp = requests.post(
+                        f'https://api.telegram.org/bot{bot_token}/sendMessage',
+                        json={'chat_id': user_id, 'text': text, 'parse_mode': 'HTML'},
+                        timeout=10
+                    )
+                    if resp.status_code != 200:
+                        log.warning(f'Telegram 发送失败: {resp.text}')
+                        continue
+                
+                log.info(f'📱 秘书已发送 Telegram 通知到 {allow_from}')
+                return True
+        
+        # 回退到飞书（如果 Telegram 失败或未配置）
+        if channel in ('feishu', 'auto'):
+            feishu_cfg = channels_cfg.get('feishu', {})
+            # 这里需要飞书 webhook 或其他发送方式
+            # 暂时只记录日志
+            log.info(f'📱 秘书尝试发送飞书通知（暂未实现）')
+        
+        return False
+    except Exception as e:
+        log.warning(f'发送消息失败: {e}')
+        return False
+
+
 def push_to_feishu():
     """Push morning brief link to Feishu via webhook."""
     cfg = read_json(DATA / 'morning_brief_config.json', {})
@@ -534,7 +592,7 @@ _JUNK_TITLES = {
 }
 
 
-def handle_create_task(title, org='产品经理', official='产品总监', priority='normal', template_id='', params=None, target_dept=''):
+def handle_create_task(title, org='产品经理', official='产品总监', priority='normal', template_id='', params=None, target_dept='', source_channel=None):
     """从看板创建新任务（任务模板创建）。"""
     if not title or not title.strip():
         return {'ok': False, 'error': '任务标题不能为空'}
@@ -587,6 +645,9 @@ def handle_create_task(title, org='产品经理', official='产品总监', prior
     }
     if target_dept:
         new_task['targetDept'] = target_dept
+    # 记录消息来源渠道
+    if source_channel:
+        new_task['sourceChannel'] = source_channel
 
     _ensure_scheduler(new_task)
     _scheduler_snapshot(new_task, 'create-task-initial')
@@ -736,17 +797,27 @@ def handle_compliance_audit(task_id):
         task.setdefault('flow_log', []).append({
             'at': now_iso(),
             'from': '合规部',
-            'to': '管理员',
-            'remark': f'📋 任务审核暂停，需要补充信息：\n{question_text}'
+            'to': '秘书',
+            'remark': f'📋 任务审核暂停，已通知秘书转达用户补充信息'
         })
         _scheduler_mark_progress(task, '合规审核暂停，等待补充')
         task['updatedAt'] = now_iso()
         save_tasks(tasks)
         
+        # 通过秘书发送 Telegram 通知（秘书是唯一入口）
+        try:
+            import requests
+            # 消息以秘书的口吻发送，根据任务来源渠道选择发送方式
+            source_channel = task.get('sourceChannel', 'telegram')
+            send_secretary_message(tg_msg, channel=source_channel)
+            log.info(f'📱 秘书已发送 {source_channel} 通知')
+        except Exception as e:
+            log.warning(f'发送 Telegram 通知失败: {e}')
+        
         return {
             'ok': True,
             'clear': False,
-            'message': f'任务 {task_id} 信息不完整，已暂停',
+            'message': f'任务 {task_id} 信息不完整，已通过秘书通知用户',
             'missing': missing,
             'questions': questions
         }
@@ -1035,20 +1106,26 @@ def wake_agent(agent_id, message=''):
 
 # 状态 → agent_id 映射
 _STATE_AGENT_MAP = {
-    'Taizi': '秘书',
-    'Xingbu': '合规部',
-    'Zhongshu': '产品经理',
-    'Menxia': '质量审核',
-    'Assigned': '项目经理',
-    'Doing': None,         # 各部门，需从 org 推断
-    'Review': '项目经理',
-    'Next': None,          # 待执行，从 org 推断
-    'Pending': '产品经理', # 待处理，默认产品经理
+    'Taizi': 'taizi',       # 秘书
+    'Xingbu': 'xingbu',     # 合规部
+    'Zhongshu': 'zhongshu', # 产品经理
+    'Menxia': 'menxia',     # 质量审核
+    'Assigned': 'shangshu', # 项目经理
+    'Doing': None,          # 各部门，需从 org 推断
+    'Review': 'shangshu',   # 项目经理
+    'Next': None,           # 待执行，从 org 推断
+    'Pending': 'zhongshu',  # 待处理，默认产品经理
 }
 _ORG_AGENT_MAP = {
-    '秘书': '秘书', '产品经理': '产品经理', '质量审核': '质量审核', '项目经理': '项目经理',
-    '内容运营': '内容运营', '财务': '财务', '研发部': '研发部', '合规部': '合规部', '运维部': '运维部', '人事': '人事',
-    '数据简报': '数据简报', '直播运营': '直播运营', '店铺运营': '店铺运营', '选品': '选品', '采购跟单': '采购跟单',
+    '秘书': 'taizi', '产品经理': 'zhongshu', '质量审核': 'menxia', '项目经理': 'shangshu',
+    '内容运营': 'libu', '财务': 'hubu', '研发部': 'bingbu', '合规部': 'xingbu', '运维部': 'gongbu', '人事': 'libu_hr',
+    '数据简报': 'zaochao', '直播运营': 'live_ops', '店铺运营': 'store_ops', '选品': 'sourcing', '采购跟单': 'procurement',
+}
+# 中文名称到英文 ID 的映射（用于消息模板选择）
+_AGENT_NAME_MAP = {
+    'taizi': '秘书', 'zhongshu': '产品经理', 'menxia': '质量审核', 'shangshu': '项目经理',
+    'hubu': '财务', 'libu': '内容运营', 'bingbu': '研发部', 'xingbu': '合规部', 'gongbu': '运维部', 'libu_hr': '人事',
+    'zaochao': '数据简报', 'live_ops': '直播运营', 'store_ops': '店铺运营', 'sourcing': '选品', 'procurement': '采购跟单',
 }
 
 _TERMINAL_STATES = {'Done', 'Cancelled'}
@@ -2075,6 +2152,85 @@ def dispatch_for_state(task_id, task, new_state, trigger='state-transition'):
         log.info(f'🚀 {task_id} 进入合规审核，正在检测任务清晰度...')
         return
     
+    # ===== IM 优先设计：通过秘书通知用户关键节点 =====
+    title = task.get('title', '(无标题)')
+    
+    # 质量审核阶段：发送方案给用户审批
+    if new_state == 'Menxia':
+        def do_quality_review_notify():
+            import time
+            time.sleep(2)  # 等待产品经理完成
+            
+            # 尝试读取产品经理生成的方案
+            proposal_summary = "方案已起草完成，请审批"
+            zhongshu_ws = OCLAW_HOME / 'workspace-zhongshu'
+            if zhongshu_ws.exists():
+                # 查找最近的报告文件
+                reports = list(zhongshu_ws.glob('*.md'))
+                if reports:
+                    latest = max(reports, key=lambda p: p.stat().st_mtime)
+                    try:
+                        content = latest.read_text()[:500]
+                        proposal_summary = f"📄 方案文件: {latest.name}\n\n{content}..."
+                    except:
+                        pass
+            
+            tg_msg = f"""🤵 秘书通知：
+
+📋 <b>方案已起草，请审批</b>
+
+任务ID: {task_id}
+任务: {title[:50]}{'...' if len(title) > 50 else ''}
+
+{proposal_summary}
+
+━━━━━━━━━━━━━━
+💬 请回复：
+• <b>通过</b> - 继续执行
+• <b>驳回</b> - 退回修改"""
+            
+            send_secretary_message(tg_msg, channel=task.get('sourceChannel', 'telegram'))
+            log.info(f'📱 {task_id} 质量审核通知已发送')
+        
+        threading.Thread(target=do_quality_review_notify, daemon=True).start()
+        # 继续原有逻辑（派发给质量审核 Agent）
+    
+    # 任务完成：发送结果给用户
+    if new_state == 'Done':
+        def do_completion_notify():
+            # 尝试读取执行结果
+            result_summary = "任务已完成"
+            
+            # 查找项目经理工作空间的报告
+            shangshu_ws = OCLAW_HOME / 'workspace-shangshu' / 'reports'
+            if shangshu_ws.exists():
+                reports = list(shangshu_ws.glob(f'{task_id}*.md'))
+                if reports:
+                    try:
+                        content = reports[0].read_text()[:1000]
+                        result_summary = f"📄 报告文件: {reports[0].name}\n\n{content}"
+                    except:
+                        pass
+            
+            tg_msg = f"""🤵 秘书通知：
+
+✅ <b>任务已完成</b>
+
+任务ID: {task_id}
+任务: {title[:50]}{'...' if len(title) > 50 else ''}
+
+{result_summary[:800]}
+
+━━━━━━━━━━━━━━
+📊 查看详情: http://10.8.0.1:7892/"""
+            
+            send_secretary_message(tg_msg, channel=task.get('sourceChannel', 'telegram'))
+            log.info(f'📱 {task_id} 完成通知已发送')
+        
+        threading.Thread(target=do_completion_notify, daemon=True).start()
+    
+    # ===== 原有 Agent 派发逻辑 =====
+    
     agent_id = _STATE_AGENT_MAP.get(new_state)
     if agent_id is None and new_state in ('Doing', 'Next'):
         # 优先使用 target_dept（任务指定的执行部门）
@@ -2105,7 +2261,8 @@ def dispatch_for_state(task_id, task, new_state, trigger='state-transition'):
     title = task.get('title', '(无标题)')
     target_dept = task.get('targetDept', '')
 
-    # 根据 agent_id 构造针对性消息
+    # 根据 agent_id 构造针对性消息（使用中文名称作为 key）
+    agent_name = _AGENT_NAME_MAP.get(agent_id, agent_id)
     _msgs = {
         '秘书': (
             f'📜 新任务需要你处理\n'
@@ -2137,7 +2294,7 @@ def dispatch_for_state(task_id, task, new_state, trigger='state-transition'):
             f'请分析方案并派发给六部执行。'
         ),
     }
-    msg = _msgs.get(agent_id, (
+    msg = _msgs.get(agent_name, (
         f'📌 请处理任务\n'
         f'任务ID: {task_id}\n'
         f'任务: {title}\n'
@@ -2155,8 +2312,7 @@ def dispatch_for_state(task_id, task, new_state, trigger='state-transition'):
                     'lastDispatchTrigger': trigger,
                 }))
                 return
-            cmd = ['openclaw', 'agent', '--agent', agent_id, '-m', msg,
-                   '--deliver', '--channel', 'feishu', '--timeout', '300']
+            cmd = ['openclaw', 'agent', '--agent', agent_id, '-m', msg, '--timeout', '300']
             max_retries = 2
             err = ''
             for attempt in range(1, max_retries + 1):
@@ -2485,6 +2641,46 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_json({'ok': False, 'error': 'taskId required'}, 400)
                 return
             self.send_json(handle_scheduler_rollback(task_id, reason))
+            return
+
+        # ===== IM 优先设计：通过 IM 回复审批任务 =====
+        if p == '/api/im-review':
+            task_id = body.get('taskId', '').strip()
+            action = body.get('action', '').strip().lower()  # '通过' 或 '驳回'
+            comment = body.get('comment', '').strip()
+            
+            if not task_id:
+                self.send_json({'ok': False, 'error': 'taskId required'}, 400)
+                return
+            if action not in ('通过', 'approve', '驳回', 'reject'):
+                self.send_json({'ok': False, 'error': 'action 必须是 "通过" 或 "驳回"'}, 400)
+                return
+            
+            # 标准化 action
+            if action in ('通过', 'approve'):
+                action = 'approve'
+            else:
+                action = 'reject'
+            
+            result = handle_review_action(task_id, action, comment)
+            self.send_json(result)
+            return
+        
+        # ===== IM 优先设计：通过 IM 回复补充任务信息 =====
+        if p == '/api/im-compliance-answer':
+            task_id = body.get('taskId', '').strip()
+            answer = body.get('answer', '').strip()
+            
+            if not task_id:
+                self.send_json({'ok': False, 'error': 'taskId required'}, 400)
+                return
+            if not answer:
+                self.send_json({'ok': False, 'error': 'answer required'}, 400)
+                return
+            
+            # 将答案作为补充信息
+            result = handle_compliance_answer(task_id, [answer])
+            self.send_json(result)
             return
 
         if p == '/api/morning-brief/refresh':

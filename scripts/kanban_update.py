@@ -171,7 +171,7 @@ def _is_valid_task_title(title):
     return True, ''
 
 
-def cmd_create(task_id, title, state, org, official, remark=None):
+def cmd_create(task_id, title, state, org, official, remark=None, source_channel=None):
     """新建任务（收旨时立即调用）"""
     # 清洗标题（剥离元数据）
     title = _sanitize_title(title)
@@ -192,18 +192,22 @@ def cmd_create(task_id, title, state, org, official, remark=None):
             if existing.get('state') not in (None, '', 'Inbox', 'Pending'):
                 log.warning(f'任务 {task_id} 已存在 (state={existing["state"]})，将被覆盖')
         tasks = [t for t in tasks if t.get('id') != task_id]
-        tasks.insert(0, {
+        task_data = {
             "id": task_id, "title": title, "official": official,
             "org": actual_org, "state": state,
             "now": clean_remark[:60] if remark else f"已创建，等待{actual_org}处理",
             "eta": "-", "block": "无", "output": "", "ac": "",
             "flow_log": [{"at": now_iso(), "from": "管理员", "to": actual_org, "remark": clean_remark}],
             "updatedAt": now_iso()
-        })
+        }
+        # 记录消息来源渠道
+        if source_channel:
+            task_data["sourceChannel"] = source_channel
+        tasks.insert(0, task_data)
         return tasks
     atomic_json_update(TASKS_FILE, modifier, [])
     save(load())  # trigger refresh
-    log.info(f'✅ 创建 {task_id} | {title[:30]} | state={state}')
+    log.info(f'✅ 创建 {task_id} | {title[:30]} | state={state} | channel={source_channel or "unknown"}')
 
 
 def cmd_state(task_id, new_state, now_text=None):
@@ -425,7 +429,24 @@ if __name__ == '__main__':
         print(__doc__)
         sys.exit(1)
     if cmd == 'create':
-        cmd_create(args[1], args[2], args[3], args[4], args[5], args[6] if len(args)>6 else None)
+        # 解析可选 --channel 参数
+        create_pos = []
+        create_channel = None
+        ci = 1
+        while ci < len(args):
+            if args[ci] == '--channel' and ci + 1 < len(args):
+                create_channel = args[ci + 1]; ci += 2
+            else:
+                create_pos.append(args[ci]); ci += 1
+        cmd_create(
+            create_pos[0] if len(create_pos) > 0 else '',
+            create_pos[1] if len(create_pos) > 1 else '',
+            create_pos[2] if len(create_pos) > 2 else '',
+            create_pos[3] if len(create_pos) > 3 else '',
+            create_pos[4] if len(create_pos) > 4 else '',
+            create_pos[5] if len(create_pos) > 5 else None,
+            source_channel=create_channel,
+        )
     elif cmd == 'state':
         cmd_state(args[1], args[2], args[3] if len(args)>3 else None)
     elif cmd == 'flow':
